@@ -12,9 +12,31 @@ public class CallTreeNode {
   private SpanDynamic spanDynamic;
   private Set<CallTreeNode> callees;
 
+  private CallTreeNode parent = null;
+
+
   public CallTreeNode(final SpanDynamic spanDynamic) {
     this.spanDynamic = spanDynamic;
     callees = new HashSet<>();
+  }
+
+  public int getLevel() {
+    if (this.parent == null) {
+      return 0;
+    }
+    return parent.getLevel()+1;
+  }
+
+  public boolean isRoot() {
+    return this.parent == null;
+  }
+
+  /*default */ CallTreeNode getParent() {
+    return parent;
+  }
+
+  public void setParent(final CallTreeNode parent) {
+    this.parent = parent;
   }
 
   @Override
@@ -27,6 +49,7 @@ public class CallTreeNode {
 
   public void addChild(CallTreeNode child) {
     this.callees.add(child);
+    child.setParent(this);
   }
 
   public SpanDynamic getSpanDynamic() {
@@ -36,4 +59,6 @@ public class CallTreeNode {
   public Set<CallTreeNode> getCallees() {
     return callees;
   }
+
+
 }
