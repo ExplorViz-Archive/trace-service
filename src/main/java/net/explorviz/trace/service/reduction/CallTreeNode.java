@@ -31,6 +31,10 @@ public class CallTreeNode {
     return this.parent == null;
   }
 
+  public boolean isLeaf() {
+    return this.callees.size() == 0;
+  }
+
   /*default */ CallTreeNode getParent() {
     return parent;
   }
