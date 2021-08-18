@@ -10,7 +10,6 @@ public class SimpleLoopReducer implements SpanReducer {
   @Override
   public CallTree reduce(final CallTree tree) {
     Map<Integer, List<CallTreeNode>> leavesPerLevel = new HashMap<>(tree.size() / 2);
-
     tree.bfs(n -> {
       if (n.isLeaf()) {
         int l = n.getLevel();
@@ -26,7 +25,7 @@ public class SimpleLoopReducer implements SpanReducer {
 
     Map<Integer, List<CallTreeNode>> reducible = findReducibleNodesPerLevel(leavesPerLevel);
 
-    // Kepp track of nodes already in the new tree, isomorphism from original to reduced tree
+    // Keep track of nodes already in the new tree, isomorphism from original to reduced tree
     HashMap<CallTreeNode, CallTreeNode> addedNodes = new HashMap<>(tree.size());
     CallTreeNode newRoot = null;
     for (int level : leavesPerLevel.keySet()) {
@@ -35,7 +34,6 @@ public class SimpleLoopReducer implements SpanReducer {
       for (CallTreeNode leaf : leafOnLevel) {
 
         if (!reducibleOnLevel.contains(leaf)) {
-
           CallTreeNode newNode = new CallTreeNode(leaf.getSpanDynamic());
           addedNodes.put(leaf, newNode);
           CallTreeNode child = newNode;
@@ -56,6 +54,7 @@ public class SimpleLoopReducer implements SpanReducer {
               newRoot = parent;
             } else {
               current = current.getParent();
+              child = parent;
             }
           }
         }
