@@ -56,6 +56,10 @@ public class CallTreeNode {
     child.setParent(this);
   }
 
+  public String getLandscapeToken(){
+    return this.spanDynamic.getLandscapeToken();
+  }
+
   public SpanDynamic getSpanDynamic() {
     return spanDynamic;
   }

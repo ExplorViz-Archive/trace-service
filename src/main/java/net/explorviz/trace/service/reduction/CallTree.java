@@ -62,6 +62,10 @@ public class CallTree {
     return c.getVal();
   }
 
+  public CallTreeNode getRoot() {
+    return root;
+  }
+
   @Override
   public String toString() {
     return new ToStringBuilder(this, ToStringStyle.JSON_STYLE)

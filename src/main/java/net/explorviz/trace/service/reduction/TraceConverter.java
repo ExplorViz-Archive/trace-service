@@ -6,10 +6,20 @@ import java.util.Iterator;
 import java.util.List;
 import net.explorviz.avro.SpanDynamic;
 import net.explorviz.avro.Trace;
+import net.explorviz.trace.service.TraceAggregator;
 
-public class TraceToTree {
+/**
+ * Provides static methods to convert {@link Trace}s to {@link CallTree}s and vice versa.
+ */
+public class TraceConverter {
 
-  public static CallTree fromTrace(Trace trace) {
+  /**
+   * Converts a trace to a call tree.
+   *
+   * @param trace the trace to convert
+   * @return the corresponding call tree
+   */
+  public static CallTree toTree(Trace trace) {
     HashMap<String, CallTreeNode> knownNodes = new HashMap<>();
     List<CallTreeNode> orphans = new ArrayList<>();
     CallTreeNode root = null;
@@ -49,6 +59,20 @@ public class TraceToTree {
     }
 
     return new CallTree(root);
+  }
+
+
+  /**
+   * Converts a call tree to a trace.
+   *
+   * @param tree the call tree
+   * @return the corresponding trace
+   */
+  public static Trace toTrace(CallTree tree) {
+    TraceAggregator ta = new TraceAggregator();
+    Trace t = new Trace();
+    tree.bfs(n -> ta.aggregate(t, n.getSpanDynamic()));
+    return t;
   }
 
 }

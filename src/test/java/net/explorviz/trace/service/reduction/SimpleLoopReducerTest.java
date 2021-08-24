@@ -17,7 +17,7 @@ class SimpleLoopReducerTest {
     for (int it : its) {
       for (int len : loopLens) {
         Trace trace = TraceHelper.uniformLoop(it, len);
-        CallTree tree = TraceToTree.fromTrace(trace);
+        CallTree tree = TraceConverter.toTree(trace);
 
         // Assert correct trace generated
         SimpleLoopReducer reducer = new SimpleLoopReducer();
