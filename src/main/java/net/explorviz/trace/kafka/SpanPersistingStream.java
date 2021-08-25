@@ -16,6 +16,10 @@ import net.explorviz.avro.SpanDynamic;
 import net.explorviz.avro.Trace;
 import net.explorviz.trace.service.TraceAggregator;
 import net.explorviz.trace.service.TraceRepository;
+import net.explorviz.trace.service.reduction.CallTree;
+import net.explorviz.trace.service.reduction.CallTreeConverter;
+import net.explorviz.trace.service.reduction.DepthReducer;
+import net.explorviz.trace.service.reduction.SimpleLoopReducer;
 import org.apache.avro.specific.SpecificRecord;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
@@ -61,6 +65,10 @@ public class SpanPersistingStream {
   private final TraceRepository traceRepository;
   private boolean logInitData = true;
 
+  // Reducer
+  final DepthReducer depthReducer;
+  final SimpleLoopReducer loopReducer;
+
   @Inject
   public SpanPersistingStream(final SchemaRegistryClient schemaRegistryClient,
       final KafkaConfig config, final TraceRepository traceRepository) {
@@ -72,6 +80,9 @@ public class SpanPersistingStream {
     this.setupStreamsConfig();
 
     this.traceRepository = traceRepository;
+
+    depthReducer = new DepthReducer(10);
+    loopReducer = new SimpleLoopReducer();
   }
 
   /* default */ void onStart(@Observes final StartupEvent event) { // NOPMD
@@ -128,6 +139,31 @@ public class SpanPersistingStream {
 
     final KStream<String, Trace> traceStream =
         traceTable.toStream().selectKey((k, v) -> v.getLandscapeToken() + "::" + k);
+
+    traceStream.foreach((key, value) -> System.out.println("|Trace.spans()| = " + value.getSpanList().size()));
+
+
+    final KStream<String, Trace> reducedTraceStream = traceStream.mapValues((k, trace) -> {
+      int tracesOriginal = trace.getSpanList().size();
+      try {
+        CallTree tree = CallTreeConverter.toTree(trace);
+        CallTree reduced = depthReducer.reduce(tree);
+        reduced = loopReducer.reduce(reduced);
+        Trace reducedTrace = CallTreeConverter.toTrace(reduced);
+        if (LOGGER.isInfoEnabled()) {
+          LOGGER.info("Reduced {} spans", (tracesOriginal-reducedTrace.getSpanList().size()));
+        }
+        return reducedTrace;
+      } catch (IllegalArgumentException e) {
+        LOGGER.warn("Could not perform reduction: {}", e.getMessage());
+        return  trace;
+      }
+
+    });
+
+
+    reducedTraceStream.foreach((key, value) -> System.out.println("Reduction |Trace.spans()| = " + value.getSpanList().size()));
+
 
     traceStream.foreach((k, t) -> {
 

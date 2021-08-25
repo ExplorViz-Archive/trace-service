@@ -6,14 +6,14 @@ import net.explorviz.avro.Trace;
 import net.explorviz.trace.service.TraceHelper;
 import org.junit.jupiter.api.Test;
 
-class TraceConverterTest {
+class CallTreeConverterTest {
 
   @Test
   void fromTrace() {
     int[] sizes = new int[]{1, 2, 10, 100, 1000, 10000};
     for (int size: sizes) {
       Trace t = TraceHelper.randomTrace(size);
-      CallTree tree = TraceConverter.toTree(t);
+      CallTree tree = CallTreeConverter.toTree(t);
       assertEquals(size, tree.size());
     }
   }
@@ -23,8 +23,8 @@ class TraceConverterTest {
     int[] sizes = new int[]{1, 2, 10, 100, 1000, 10000};
     for (int size: sizes) {
       Trace t = TraceHelper.randomTrace(size);
-      CallTree tree = TraceConverter.toTree(t);
-      Trace got = TraceConverter.toTrace(tree);
+      CallTree tree = CallTreeConverter.toTree(t);
+      Trace got = CallTreeConverter.toTrace(tree);
       assertEquals(size, got.getSpanList().size());
     }
   }

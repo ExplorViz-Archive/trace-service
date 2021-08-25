@@ -11,15 +11,15 @@ class DepthReducerTest {
   @Test
   void reduceLinear() {
 
-    int[] depthLimits = new int[]{0, 1, 2, 10, 20, 200};
+    int[] depthLimits = new int[]{ 1, 2, 10, 20, 200};
     for (int limit: depthLimits) {
       // generate trace with higher depth
       int spans = 1 + (limit*2);
       Trace trace = TraceHelper.linearTrace(spans);
-      CallTree tree = TraceConverter.toTree(trace);
+      CallTree tree = CallTreeConverter.toTree(trace);
 
       // Assert correct trace generated
-      assertTrue(tree.depth() >= spans);
+      assertTrue(tree.depth() >= spans-1);
       DepthReducer reducer = new DepthReducer(limit);
       CallTree reduced = reducer.reduce(tree);
       assertEquals(limit, reduced.depth());
@@ -35,7 +35,7 @@ class DepthReducerTest {
       int loopLen = 1 + (limit*2);
       int its  = 5;
       Trace trace = TraceHelper.uniformLoop(its, loopLen);
-      CallTree tree = TraceConverter.toTree(trace);
+      CallTree tree = CallTreeConverter.toTree(trace);
 
       // Assert correct trace generated
       assertTrue(tree.depth() >= loopLen);
@@ -54,7 +54,7 @@ class DepthReducerTest {
       int size = limit+1;
       int recs  = limit+1;
       Trace trace = TraceHelper.linearRecursion(recs, size);
-      CallTree tree = TraceConverter.toTree(trace);
+      CallTree tree = CallTreeConverter.toTree(trace);
 
       // Assert correct trace generated
       assertTrue(tree.depth() >= size*recs);

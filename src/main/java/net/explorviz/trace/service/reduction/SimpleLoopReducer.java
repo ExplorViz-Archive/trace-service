@@ -24,7 +24,7 @@ public class SimpleLoopReducer implements SpanReducer {
     });
 
     Map<Integer, List<CallTreeNode>> reducible = findReducibleNodesPerLevel(leavesPerLevel);
-
+    boolean reduced = false;
     // Keep track of nodes already in the new tree, isomorphism from original to reduced tree
     HashMap<CallTreeNode, CallTreeNode> addedNodes = new HashMap<>(tree.size());
     CallTreeNode newRoot = null;
@@ -34,25 +34,29 @@ public class SimpleLoopReducer implements SpanReducer {
       for (CallTreeNode leaf : leafOnLevel) {
 
         if (!reducibleOnLevel.contains(leaf)) {
+
           CallTreeNode newNode = new CallTreeNode(leaf.getSpanDynamic());
           addedNodes.put(leaf, newNode);
           CallTreeNode child = newNode;
           CallTreeNode current = leaf.getParent();
           while (true) {
-            if (addedNodes.containsKey(current)) {
-              // Already in new tree, just add child and break loop
-              CallTreeNode parent = addedNodes.get(current);
-              parent.addChild(child);
+            if (current == null) {
+              // Is root
+              newRoot = child;
               break;
-            }
-            // Create new node for parent and add child
-            CallTreeNode parent = new CallTreeNode(current.getSpanDynamic());
-            addedNodes.put(current, parent);
-            parent.addChild(child);
-            // Proceed with next parent
-            if (current.isRoot()) {
-              newRoot = parent;
             } else {
+              if (addedNodes.containsKey(current)) {
+                // Already in new tree, just add child and break loop
+                CallTreeNode parent = addedNodes.get(current);
+                parent.addChild(child);
+                break;
+              }
+              // Create new node for parent and add child
+              CallTreeNode parent = new CallTreeNode(current.getSpanDynamic());
+              addedNodes.put(current, parent);
+              parent.addChild(child);
+              // Proceed with next parent
+
               current = current.getParent();
               child = parent;
             }
@@ -62,7 +66,9 @@ public class SimpleLoopReducer implements SpanReducer {
       }
     }
 
+
     return new CallTree(newRoot);
+
   }
 
   private Map<Integer, List<CallTreeNode>> findReducibleNodesPerLevel(

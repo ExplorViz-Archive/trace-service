@@ -11,7 +11,7 @@ import net.explorviz.trace.service.TraceAggregator;
 /**
  * Provides static methods to convert {@link Trace}s to {@link CallTree}s and vice versa.
  */
-public class TraceConverter {
+public class CallTreeConverter {
 
   /**
    * Converts a trace to a call tree.
@@ -25,29 +25,29 @@ public class TraceConverter {
     CallTreeNode root = null;
 
     for (SpanDynamic sd : trace.getSpanList()) {
-      String sid = sd.getSpanId();
-      CallTreeNode ctn = new CallTreeNode(sd);
-      knownNodes.put(sid, ctn);
+      String spanId = sd.getSpanId();
+      CallTreeNode node = new CallTreeNode(sd);
+      knownNodes.put(spanId, node);
 
       Iterator<CallTreeNode> it = orphans.iterator();
       while (it.hasNext()) {
         CallTreeNode orphan = it.next();
-        if (orphan.getSpanDynamic().getParentSpanId().equals(sid)) {
-          ctn.addChild(orphan);
-          orphans.remove(orphan);
+        if (orphan.getSpanDynamic().getParentSpanId().equals(spanId)) {
+          node.addChild(orphan);
+          it.remove();
         }
       }
 
-      String pid = sd.getParentSpanId();
-      if (pid.isBlank()) {
-        root = ctn;
+
+      if (sd.getParentSpanId().isEmpty()) {
+        root = node;
         continue;
       }
-      CallTreeNode parent = knownNodes.get(pid);
+      CallTreeNode parent = knownNodes.get(sd.getParentSpanId());
       if (parent != null) {
-        parent.addChild(ctn);
+        parent.addChild(node);
       } else {
-        orphans.add(ctn);
+        orphans.add(node);
       }
     }
 

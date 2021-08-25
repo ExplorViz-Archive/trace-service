@@ -11,13 +11,13 @@ class SimpleLoopReducerTest {
   @Test
   void reduceLoops() {
 
-    int[] loopLens = new int[] {1, 2, 4, 16, 32, 512, 1024};
-    int[] its = new int[] {1, 2, 10, 20, 1000};
+    int[] loopLens = new int[] {1, 2, 4, 16, 32, 512 };
+    int[] its = new int[] {1, 2, 10, 20, 500};
 
     for (int it : its) {
       for (int len : loopLens) {
         Trace trace = TraceHelper.uniformLoop(it, len);
-        CallTree tree = TraceConverter.toTree(trace);
+        CallTree tree = CallTreeConverter.toTree(trace);
 
         // Assert correct trace generated
         SimpleLoopReducer reducer = new SimpleLoopReducer();
