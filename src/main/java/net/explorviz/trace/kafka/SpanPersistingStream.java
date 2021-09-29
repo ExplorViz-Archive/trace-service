@@ -52,7 +52,7 @@ public class SpanPersistingStream {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SpanPersistingStream.class);
 
-  @Inject
+  @Inject // NOPMD
   /* default */ MeterRegistry meterRegistry; // NOPMD NOCS
 
   private final Properties streamsConfig = new Properties();
@@ -88,7 +88,7 @@ public class SpanPersistingStream {
 
     this.streams.start();
 
-    KafkaStreamsMetrics ksm = new KafkaStreamsMetrics(this.streams);
+    final KafkaStreamsMetrics ksm = new KafkaStreamsMetrics(this.streams);
     ksm.bindTo(meterRegistry);
   }
 
