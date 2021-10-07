@@ -5,32 +5,33 @@
 
 # ExplorViz Trace-Service
 
-The Trace-Service processes and manages the observed traces of method executions with monitored software landscapes.
-
+Scalable service that processes, aggregates and persists the observed traces of method executions within monitored software applications.
 
 ## Features
 
 ![trace-service](.docs/trace-service.png)
 
-The service ingests the part each span that contains data referring to traces of method execution.
-All related information is bundled in `SpanDynamic` objects which contain the following attributes
+The service serves three purposes
+
+1. it aggregates dynamic information of monitored applications, i.e., method calls with timing information (`SpanDynamic`), and reconstructs traces based on these spans.
+2. persists these traces in a Cassandra database.
+3. assembles a list of traces upon client request (for a given landscape token and optionally time frame).
+
+### Processing Dynamic Information
+
+The Trace-Service reads `SpanDynamic` records from a Kafka topic.
+Its main purpose is to identify and aggregate spans that belong to the same trace and store them. A `SpanDynamic` consists of
 
 - `spanId` (uniquely identifies a span)
 - `traceId` (identifies the trace the span belongs to)
 - `parentSpanId` (identifies the parent of this span in the call hierarchy, i.e., the caller)
 - timestamps of the start and end time
-- the fingerprint and other metadata
+- the fingerprint (i.e. mapping to a structural record) and other metadata
 
 You can find the full definition as an Avro schema [here](src/main/avro/spandynamic.avsc).
 
-The Trace-Service reads `SpanDynamic` records from a Kafka topic.
-Its main purpose is to identify and aggregate spans that belong to the same trace and store them.
-
-Each time the service ingests a span with a prior unknown `traceId`, it waits for 10s (in [stream time](https://kafka.apache.org/21/documentation/streams/core-concepts#streams_time))
-for more spans of that trace to arrive. 
-After the 10s window closes, all related spans are aggregated into a trace object,
-which is subsequently written to a Cassandra database.
-
+Each time the service ingests a span with an unknown `traceId`, it waits for 10s (in [stream time](https://kafka.apache.org/21/documentation/streams/core-concepts#streams_time)) for more spans of that trace to arrive. 
+After 10s the window closes, all related spans are aggregated into a trace object, which is subsequently written to a Cassandra database.
 
 Stored traces can be retrieved by clients. 
 For that purpose, client have to specify the landscape token, and the time period for which traces should be retrieved. 
