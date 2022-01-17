@@ -58,7 +58,6 @@ public class SpanPersistingStream {
   private static final Logger LOGGER = LoggerFactory.getLogger(SpanPersistingStream.class);
 
   @Inject
-  // NOPMD
   /* default */ MeterRegistry meterRegistry; // NOPMD NOCS
 
   private final Properties streamsConfig = new Properties();
@@ -99,7 +98,7 @@ public class SpanPersistingStream {
 
     this.streams.start();
 
-    final KafkaStreamsMetrics ksm = new KafkaStreamsMetrics(this.streams);
+    final KafkaStreamsMetrics ksm = new KafkaStreamsMetrics(this.streams); // NOPMD
     ksm.bindTo(this.meterRegistry);
   }
 
@@ -166,7 +165,9 @@ public class SpanPersistingStream {
         }
         return reducedTrace;
       } catch (final IllegalArgumentException e) {
-        LOGGER.warn("Could not perform reduction: {}", e.getMessage());
+        if (LOGGER.isWarnEnabled()) {
+          LOGGER.warn("Could not perform reduction: {}", e.getMessage());
+        }
         return trace;
       }
 
@@ -177,7 +178,7 @@ public class SpanPersistingStream {
     // .println("Reduction |Trace.spans()| = " + value.getSpanList().size()));
 
 
-    traceStream.foreach((k, t) -> {
+    reducedTraceStream.foreach((k, t) -> {
 
       if (this.logInitData && LOGGER.isDebugEnabled()) {
         this.logInitData = false;

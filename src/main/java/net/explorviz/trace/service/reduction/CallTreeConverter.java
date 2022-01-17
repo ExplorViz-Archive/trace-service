@@ -11,7 +11,12 @@ import net.explorviz.trace.service.TraceAggregator;
 /**
  * Provides static methods to convert {@link Trace}s to {@link CallTree}s and vice versa.
  */
-public class CallTreeConverter {
+public final class CallTreeConverter {
+
+
+  private CallTreeConverter() {
+    // utility class
+  }
 
   /**
    * Converts a trace to a call tree.
@@ -19,7 +24,7 @@ public class CallTreeConverter {
    * @param trace the trace to convert
    * @return the corresponding call tree
    */
-  public static CallTree toTree(final Trace trace) {
+  public static CallTree toTree(final Trace trace) { // NOPMD
     final HashMap<String, CallTreeNode> knownNodes = new HashMap<>();
     final List<CallTreeNode> orphans = new ArrayList<>();
     CallTreeNode root = null;
@@ -44,17 +49,17 @@ public class CallTreeConverter {
         continue;
       }
       final CallTreeNode parent = knownNodes.get(sd.getParentSpanId());
-      if (parent != null) {
-        parent.addChild(node);
-      } else {
+      if (parent == null) {
         orphans.add(node);
+      } else {
+        parent.addChild(node);
       }
     }
 
     if (root == null) {
       throw new IllegalArgumentException("Invalid trace: No root");
     }
-    if (orphans.size() > 0) {
+    if (!orphans.isEmpty()) {
       throw new IllegalArgumentException("Invalid trace: Not connected");
     }
 

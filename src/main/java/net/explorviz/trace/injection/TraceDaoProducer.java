@@ -25,9 +25,9 @@ public class TraceDaoProducer {
     this.spanDynamicDaoReactive = mapper.traceDaoReactive();
   }
 
-  @Produces // NOPMD
+  @Produces
   @ApplicationScoped
-  /* default */ TraceDaoReactive produceSpanDynamicDaoReactive() {
+  /* default */ TraceDaoReactive produceSpanDynamicDaoReactive() { // NOPMD
     return this.spanDynamicDaoReactive;
   }
 

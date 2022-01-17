@@ -11,7 +11,7 @@ import java.util.Map;
 public class SimpleLoopReducer implements SpanReducer {
 
   @Override
-  public CallTree reduce(final CallTree tree) {
+  public CallTree reduce(final CallTree tree) { // NOPMD
     final Map<Integer, List<CallTreeNode>> leavesPerLevel = new HashMap<>(tree.size() / 2);
     tree.bfs(n -> {
       if (n.isLeaf()) {
@@ -28,7 +28,7 @@ public class SimpleLoopReducer implements SpanReducer {
 
     final Map<Integer, List<CallTreeNode>> reducible =
         this.findReducibleNodesPerLevel(leavesPerLevel);
-    final boolean reduced = false;
+    // final boolean reduced = false;
     // Keep track of nodes already in the new tree, isomorphism from original to reduced tree
     final HashMap<CallTreeNode, CallTreeNode> addedNodes = new HashMap<>(tree.size());
     CallTreeNode newRoot = null;
@@ -75,7 +75,7 @@ public class SimpleLoopReducer implements SpanReducer {
 
   }
 
-  private Map<Integer, List<CallTreeNode>> findReducibleNodesPerLevel(
+  private Map<Integer, List<CallTreeNode>> findReducibleNodesPerLevel( // NOPMD
       final Map<Integer, List<CallTreeNode>> leavesPerLevel) {
 
     final Map<Integer, List<CallTreeNode>> reducibleNodes = new HashMap<>();
@@ -133,7 +133,7 @@ public class SimpleLoopReducer implements SpanReducer {
       lcav.add(cv);
       cu = cu.getParent();
       cv = cv.getParent();
-    } while (cu != cv);
+    } while (!cu.equals(cv));
 
     return new List[] {lcau, lcav};
   }

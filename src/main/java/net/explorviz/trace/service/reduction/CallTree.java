@@ -66,7 +66,7 @@ public class CallTree {
 
     class Counter {
 
-      private int val = 0;
+      private int val;
 
       public int getVal() {
         return this.val;

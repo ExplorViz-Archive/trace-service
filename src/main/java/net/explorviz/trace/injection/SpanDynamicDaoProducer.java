@@ -25,9 +25,9 @@ public class SpanDynamicDaoProducer {
     this.spanDynamicDaoReactive = mapper.spanDynamicDaoReactive();
   }
 
-  @Produces // NOPMD
+  @Produces
   @ApplicationScoped
-  /* default */ SpanDynamicDaoReactive produceSpanDynamicDaoReactive() {
+  /* default */ SpanDynamicDaoReactive produceSpanDynamicDaoReactive() { // NOPMD
     return this.spanDynamicDaoReactive;
   }
 

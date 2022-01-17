@@ -108,7 +108,7 @@ public class SpanDynamic {
     if (this == obj) {
       return true;
     }
-    if ((obj == null) || (this.getClass() != obj.getClass())) {
+    if (obj == null || this.getClass() != obj.getClass()) {
       return false;
     }
     final SpanDynamic other = (SpanDynamic) obj;

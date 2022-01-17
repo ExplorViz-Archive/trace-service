@@ -15,7 +15,7 @@ public class CallTreeNode {
   private final SpanDynamic spanDynamic;
   private final Set<CallTreeNode> callees;
 
-  private CallTreeNode parent = null;
+  private CallTreeNode parent;
 
 
   public CallTreeNode(final SpanDynamic spanDynamic) {
@@ -35,10 +35,10 @@ public class CallTreeNode {
   }
 
   public boolean isLeaf() {
-    return this.callees.size() == 0;
+    return this.callees.isEmpty();
   }
 
-  /* default */ CallTreeNode getParent() {
+  /* default */ CallTreeNode getParent() { // NOPMD
     return this.parent;
   }
 
