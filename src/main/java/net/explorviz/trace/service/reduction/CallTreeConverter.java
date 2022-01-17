@@ -19,19 +19,19 @@ public class CallTreeConverter {
    * @param trace the trace to convert
    * @return the corresponding call tree
    */
-  public static CallTree toTree(Trace trace) {
-    HashMap<String, CallTreeNode> knownNodes = new HashMap<>();
-    List<CallTreeNode> orphans = new ArrayList<>();
+  public static CallTree toTree(final Trace trace) {
+    final HashMap<String, CallTreeNode> knownNodes = new HashMap<>();
+    final List<CallTreeNode> orphans = new ArrayList<>();
     CallTreeNode root = null;
 
-    for (SpanDynamic sd : trace.getSpanList()) {
-      String spanId = sd.getSpanId();
-      CallTreeNode node = new CallTreeNode(sd);
+    for (final SpanDynamic sd : trace.getSpanList()) {
+      final String spanId = sd.getSpanId();
+      final CallTreeNode node = new CallTreeNode(sd);
       knownNodes.put(spanId, node);
 
-      Iterator<CallTreeNode> it = orphans.iterator();
+      final Iterator<CallTreeNode> it = orphans.iterator();
       while (it.hasNext()) {
-        CallTreeNode orphan = it.next();
+        final CallTreeNode orphan = it.next();
         if (orphan.getSpanDynamic().getParentSpanId().equals(spanId)) {
           node.addChild(orphan);
           it.remove();
@@ -43,7 +43,7 @@ public class CallTreeConverter {
         root = node;
         continue;
       }
-      CallTreeNode parent = knownNodes.get(sd.getParentSpanId());
+      final CallTreeNode parent = knownNodes.get(sd.getParentSpanId());
       if (parent != null) {
         parent.addChild(node);
       } else {
@@ -68,9 +68,9 @@ public class CallTreeConverter {
    * @param tree the call tree
    * @return the corresponding trace
    */
-  public static Trace toTrace(CallTree tree) {
-    TraceAggregator ta = new TraceAggregator();
-    Trace t = new Trace();
+  public static Trace toTrace(final CallTree tree) {
+    final TraceAggregator ta = new TraceAggregator();
+    final Trace t = new Trace();
     tree.bfs(n -> ta.aggregate(t, n.getSpanDynamic()));
     return t;
   }

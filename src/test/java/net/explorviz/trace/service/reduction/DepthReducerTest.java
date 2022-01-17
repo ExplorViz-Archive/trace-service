@@ -33,8 +33,8 @@ class DepthReducerTest {
     for (int limit: depthLimits) {
       // generate trace with higher depth
       int loopLen = 1 + (limit*2);
-      int its  = 5;
-      Trace trace = TraceHelper.uniformLoop(its, loopLen);
+      int iterations  = 5;
+      Trace trace = TraceHelper.uniformLoop(iterations, loopLen);
       CallTree tree = CallTreeConverter.toTree(trace);
 
       // Assert correct trace generated

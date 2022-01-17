@@ -1,5 +1,6 @@
 package net.explorviz.trace.kafka;
 
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import java.time.Instant;
 import net.explorviz.avro.SpanDynamic;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -9,6 +10,7 @@ import org.apache.kafka.streams.processor.TimestampExtractor;
  * Timestamp extractor for spans. Uses the start time of a spans as the record's timestamp used for
  * windowing.
  */
+@RegisterForReflection
 public class SpanTimestampKafkaExtractor implements TimestampExtractor {
 
   public SpanTimestampKafkaExtractor() { // NOPMD

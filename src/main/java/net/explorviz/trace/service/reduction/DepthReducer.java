@@ -3,8 +3,13 @@ package net.explorviz.trace.service.reduction;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class DepthReducer implements SpanReducer {
 
+/**
+ * {@link SpanReducer} implementation that expects a {@link CallTree} with at least depth of 1. This
+ * reducer then proceeds to cut off levels of a call tree that are deeper that the passed depth
+ * limit.
+ */
+public class DepthReducer implements SpanReducer {
 
   private final int depthLimit;
 
@@ -17,12 +22,12 @@ public class DepthReducer implements SpanReducer {
 
   @Override
   public CallTree reduce(final CallTree tree) {
-    HashMap<String, CallTreeNode> reduced = new HashMap<>();
+    final HashMap<String, CallTreeNode> reduced = new HashMap<>();
     final AtomicReference<String> rootId = new AtomicReference<>();
     tree.bfs(callTreeNode -> {
-      if (callTreeNode.getLevel() <= depthLimit) {
+      if (callTreeNode.getLevel() <= this.depthLimit) {
         // Create new node and save in map
-        CallTreeNode cp = new CallTreeNode(callTreeNode.getSpanDynamic());
+        final CallTreeNode cp = new CallTreeNode(callTreeNode.getSpanDynamic());
         reduced.put(cp.getSpanDynamic().getSpanId(), cp);
 
         // Save root
@@ -31,7 +36,7 @@ public class DepthReducer implements SpanReducer {
         } else {
           // Search for parent and add current as child
           // parent must exist since we perform bfs
-          CallTreeNode parent = reduced.get(cp.getSpanDynamic().getParentSpanId());
+          final CallTreeNode parent = reduced.get(cp.getSpanDynamic().getParentSpanId());
           parent.addChild(cp);
         }
 

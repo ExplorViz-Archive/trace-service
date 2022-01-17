@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 class CallTreeConverterTest {
 
   @Test
-  void fromTrace() {
+  void testSizeAfterConversion() {
     int[] sizes = new int[]{1, 2, 10, 100, 1000, 10000};
     for (int size: sizes) {
       Trace t = TraceHelper.randomTrace(size);
@@ -19,7 +19,7 @@ class CallTreeConverterTest {
   }
 
   @Test
-  void toTrace() {
+  void testConversion() {
     int[] sizes = new int[]{1, 2, 10, 100, 1000, 10000};
     for (int size: sizes) {
       Trace t = TraceHelper.randomTrace(size);

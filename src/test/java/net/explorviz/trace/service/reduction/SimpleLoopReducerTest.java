@@ -12,9 +12,9 @@ class SimpleLoopReducerTest {
   void reduceLoops() {
 
     int[] loopLens = new int[] {1, 2, 4, 16, 32, 512 };
-    int[] its = new int[] {1, 2, 10, 20, 500};
+    int[] iterations = new int[] {1, 2, 10, 20, 500};
 
-    for (int it : its) {
+    for (int it : iterations) {
       for (int len : loopLens) {
         Trace trace = TraceHelper.uniformLoop(it, len);
         CallTree tree = CallTreeConverter.toTree(trace);

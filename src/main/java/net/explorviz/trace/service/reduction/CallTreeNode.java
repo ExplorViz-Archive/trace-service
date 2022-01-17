@@ -6,25 +6,28 @@ import net.explorviz.avro.SpanDynamic;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+/**
+ * Representation for a node in a {@link CallTree}.
+ */
 public class CallTreeNode {
 
 
-  private SpanDynamic spanDynamic;
-  private Set<CallTreeNode> callees;
+  private final SpanDynamic spanDynamic;
+  private final Set<CallTreeNode> callees;
 
   private CallTreeNode parent = null;
 
 
   public CallTreeNode(final SpanDynamic spanDynamic) {
     this.spanDynamic = spanDynamic;
-    callees = new HashSet<>();
+    this.callees = new HashSet<>();
   }
 
   public int getLevel() {
     if (this.parent == null) {
       return 0;
     }
-    return parent.getLevel()+1;
+    return this.parent.getLevel() + 1;
   }
 
   public boolean isRoot() {
@@ -35,8 +38,8 @@ public class CallTreeNode {
     return this.callees.size() == 0;
   }
 
-  /*default */ CallTreeNode getParent() {
-    return parent;
+  /* default */ CallTreeNode getParent() {
+    return this.parent;
   }
 
   public void setParent(final CallTreeNode parent) {
@@ -47,25 +50,25 @@ public class CallTreeNode {
   public String toString() {
     return new ToStringBuilder(this, ToStringStyle.JSON_STYLE)
         .append("spanId", this.spanDynamic.getSpanId())
-        .append("callees", callees)
+        .append("callees", this.callees)
         .toString();
   }
 
-  public void addChild(CallTreeNode child) {
+  public void addChild(final CallTreeNode child) {
     this.callees.add(child);
     child.setParent(this);
   }
 
-  public String getLandscapeToken(){
+  public String getLandscapeToken() {
     return this.spanDynamic.getLandscapeToken();
   }
 
   public SpanDynamic getSpanDynamic() {
-    return spanDynamic;
+    return this.spanDynamic;
   }
 
   public Set<CallTreeNode> getCallees() {
-    return callees;
+    return this.callees;
   }
 
 
