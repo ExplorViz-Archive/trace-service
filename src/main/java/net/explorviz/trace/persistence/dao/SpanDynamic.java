@@ -19,7 +19,7 @@ public class SpanDynamic {
   private long startTime;
 
   private long endTime;
-  private String hashCode; // NOPMD
+  private String hashCode;// NOPMD
 
   public SpanDynamic() {
     // for serialization

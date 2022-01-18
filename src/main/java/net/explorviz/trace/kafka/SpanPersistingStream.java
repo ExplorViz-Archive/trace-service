@@ -98,7 +98,7 @@ public class SpanPersistingStream {
 
     this.streams.start();
 
-    final KafkaStreamsMetrics ksm = new KafkaStreamsMetrics(this.streams); // NOPMD
+    final KafkaStreamsMetrics ksm = new KafkaStreamsMetrics(this.streams);// NOPMD
     ksm.bindTo(this.meterRegistry);
   }
 

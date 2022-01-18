@@ -75,7 +75,7 @@ public class SimpleLoopReducer implements SpanReducer {
 
   }
 
-  private Map<Integer, List<CallTreeNode>> findReducibleNodesPerLevel( // NOPMD
+  private Map<Integer, List<CallTreeNode>> findReducibleNodesPerLevel(// NOPMD
       final Map<Integer, List<CallTreeNode>> leavesPerLevel) {
 
     final Map<Integer, List<CallTreeNode>> reducibleNodes = new HashMap<>();

@@ -127,10 +127,7 @@ public class Trace {
       return false;
     }
     final Trace other = (Trace) obj;
-    if (this.duration != other.duration) {
-      return false;
-    }
-    if (this.endTime != other.endTime) {
+    if (this.duration != other.duration || this.endTime != other.endTime) {
       return false;
     }
     if (this.landscapeToken == null) {
