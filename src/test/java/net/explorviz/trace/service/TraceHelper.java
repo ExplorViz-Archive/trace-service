@@ -16,28 +16,21 @@ import org.apache.commons.lang3.RandomUtils;
 public final class TraceHelper {
 
 
-  /**
-   * Shortcut for {@link #randomSpan(String, String)} with random trace id and landscape token.
-   */
-  public static SpanDynamic randomSpan() {
-    final String randomTraceId = RandomStringUtils.random(6, true, true);
-    final String landscapeToken = RandomStringUtils.random(32, true, true);
-    return randomSpan(randomTraceId, landscapeToken);
-  }
 
   /**
    * Create a random span with given trace id and landscape token such that:
    * <ul>
    * <li>Timestamps are random points in time in the year of 2020 (to avoid overflows)</li>
-   * <li>Parent span IDs are completely random Ids</li>
    * <li>Hash codes are not calculated but random strings</li>
    * </ul>
    *
    * @param traceId the trace id to use
-   * @param token the token to use
+   * @param token   the token to use
+   * @param parentSpanId the id of the parent span
    * @return a randomly generated span
    */
-  public static SpanDynamic randomSpan(final String traceId, final String token) {
+  public static SpanDynamic randomSpan(final String traceId, final String token,
+                                       final String parentSpanId) {
     final long maxSeconds = 1609459200;
     final long minSeconds = 1577836800;
 
@@ -50,30 +43,12 @@ public final class TraceHelper {
         .setEndTime(new Timestamp(RandomUtils.nextLong(minSeconds, maxSeconds),
             RandomUtils.nextInt(0, maxNanos)))
         .setTraceId(traceId)
-        .setParentSpanId(RandomStringUtils.random(8, true, true))
-        .setSpanId(RandomStringUtils.random(8, true, true))
-        .setHashCode(RandomStringUtils.random(256, true, true))
-        .build();
-
-  }
-
-  public static SpanDynamic randomSpanFixedTimeInterval(final String traceId, final String token,
-      final long fromSeconds, final long toSeconds) {
-
-    final int maxNanos = Instant.MAX.getNano();
-
-    return SpanDynamic.newBuilder()
-        .setLandscapeToken(token)
-        .setStartTime(new Timestamp(fromSeconds,
-            RandomUtils.nextInt(0, maxNanos)))
-        .setEndTime(new Timestamp(toSeconds,
-            RandomUtils.nextInt(0, maxNanos)))
-        .setTraceId(traceId)
-        .setParentSpanId(RandomStringUtils.random(8, true, true))
+        .setParentSpanId(parentSpanId)
         .setSpanId(RandomStringUtils.random(8, true, true))
         .setHashCode(RandomStringUtils.random(256, true, true))
         .build();
   }
+
 
   /**
    * Creates a random trace such that:
@@ -100,15 +75,173 @@ public final class TraceHelper {
 
   }
 
+  /**
+   * Creates a trace with a `iterations` branches following a single root node.
+   * Each branch has exactly `length` spans all spans on the same level share the same hashcode.
+   * @param iterations the number of iterations of the loop
+   * @param length the length of each iteration in spans
+   * @return a trace representing the loop
+   */
+  public static Trace uniformLoop(final int iterations, final int length) {
+    final String traceId = RandomStringUtils.random(6, true, true);
+    final String landscapeToken = RandomStringUtils.random(32, true, true);
+
+    List<SpanDynamic> spans = new ArrayList<>(iterations*length+1);
+
+    SpanDynamic root = randomSpan(traceId, landscapeToken, "");
+    spans.add(root);
+    Timestamp start = root.getStartTime();
+    Timestamp end = root.getEndTime();
+
+    // Generate 'length' hashcodes
+    ArrayList<String> hashcodes = new ArrayList<>(length);
+    for (int l=0; l < length; l++) {
+      hashcodes.add(RandomStringUtils.random(256, true, true));
+    }
+
+    for (int it=0; it<iterations; it++) {
+      SpanDynamic iterationRoot = randomSpan(traceId, landscapeToken, root.getSpanId());
+      String parentId = iterationRoot.getSpanId();
+      iterationRoot.setHashCode(hashcodes.get(0));
+      spans.add(iterationRoot);
+      for (int l=1; l<length; l++) {
+        SpanDynamic next = randomSpan(traceId, landscapeToken, parentId);
+        next.setHashCode(hashcodes.get(l));
+        if (TimestampHelper.isBefore(next.getStartTime(), start)) {
+          start = next.getStartTime();
+        }
+        if (TimestampHelper.isAfter(next.getEndTime(), end)) {
+          end = next.getEndTime();
+        }
+        parentId = next.getSpanId();
+        spans.add(next);
+      }
+    }
+    return Trace.newBuilder()
+        .setLandscapeToken(landscapeToken)
+        .setTraceId(traceId)
+        .setStartTime(start)
+        .setEndTime(end)
+        .setDuration(TimestampHelper.durationMs(start, end))
+        .setSpanList(spans)
+        .setTraceCount(1)
+        .setOverallRequestCount(1)
+        .build();
+  }
+
+  public static Trace linearTrace(final int spanNum) {
+    final String traceId = RandomStringUtils.random(6, true, true);
+    final String landscapeToken = RandomStringUtils.random(32, true, true);
+
+    List<SpanDynamic> spans = new ArrayList<>(spanNum);
+
+    SpanDynamic root = randomSpan(traceId, landscapeToken, "");
+    spans.add(root);
+    String parentId = root.getSpanId();
+    Timestamp start = root.getStartTime();
+    Timestamp end = root.getEndTime();
+
+    for (int i=0; i<spanNum-1; i++) {
+      SpanDynamic next = randomSpan(traceId, landscapeToken, parentId);
+      if (TimestampHelper.isBefore(next.getStartTime(), start)) {
+        start = next.getStartTime();
+      }
+      if (TimestampHelper.isAfter(next.getEndTime(), end)) {
+        end = next.getEndTime();
+      }
+      parentId = next.getSpanId();
+      spans.add(next);
+    }
+    return Trace.newBuilder()
+        .setLandscapeToken(landscapeToken)
+        .setTraceId(traceId)
+        .setStartTime(start)
+        .setEndTime(end)
+        .setDuration(TimestampHelper.durationMs(start, end))
+        .setSpanList(spans)
+        .setTraceCount(1)
+        .setOverallRequestCount(1)
+        .build();
+  }
+
+  /**
+   * Create a trace that represents a linear recursion, i.e.,
+   * creates a linear trace with repeated groups of `size` spans that share tha same hashcode.
+   * The total lenght (number of spans) is `recursion`*`size`.
+   *
+   * @param recursions the amount of recursion
+   * @param size the size of each recursive call
+   * @return the trace representing the recursion
+   */
+  public static Trace linearRecursion(final int recursions, final int size) {
+    final String traceId = RandomStringUtils.random(6, true, true);
+    final String landscapeToken = RandomStringUtils.random(32, true, true);
+
+    List<SpanDynamic> spans = new ArrayList<>(recursions*size+1);
+
+    ArrayList<String> hashcodes = new ArrayList<>(size);
+    for (int l=0; l < size; l++) {
+      hashcodes.add(RandomStringUtils.random(256, true, true));
+    }
+
+    SpanDynamic root = randomSpan(traceId, landscapeToken, "");
+    root.setHashCode(hashcodes.get(0));
+    spans.add(root);
+    String parentId = root.getSpanId();
+    Timestamp start = root.getStartTime();
+    Timestamp end = root.getEndTime();
+
+    for (int i=1; i<=(recursions*size); i++) {
+        SpanDynamic next = randomSpan(traceId, landscapeToken, parentId);
+        next.setHashCode(hashcodes.get(i%size));
+        if (TimestampHelper.isBefore(next.getStartTime(), start)) {
+          start = next.getStartTime();
+        }
+        if (TimestampHelper.isAfter(next.getEndTime(), end)) {
+          end = next.getEndTime();
+        }
+        parentId = next.getSpanId();
+        spans.add(next);
+
+    }
+    return Trace.newBuilder()
+        .setLandscapeToken(landscapeToken)
+        .setTraceId(traceId)
+        .setStartTime(start)
+        .setEndTime(end)
+        .setDuration(TimestampHelper.durationMs(start, end))
+        .setSpanList(spans)
+        .setTraceCount(1)
+        .setOverallRequestCount(1)
+        .build();
+  }
+
   public static Trace randomTrace(final int spanAmount, final String landscapeToken) {
 
     final String traceId = RandomStringUtils.random(6, true, true);
 
     Timestamp start = null;
     Timestamp end = null;
+    SpanDynamic root = null;
     final List<SpanDynamic> spans = new ArrayList<>();
+
+
+
     for (int i = 0; i < spanAmount; i++) {
-      final SpanDynamic s = randomSpan(traceId, landscapeToken);
+      String psid;
+      if (root == null) {
+        psid = "";
+      } else {
+        psid = spans.stream()
+            .map(SpanDynamic::getSpanId)
+            .skip(RandomUtils.nextInt(0, spans.size() - 1))
+            .findAny()
+            .get();
+      }
+      final SpanDynamic s = randomSpan(traceId, landscapeToken, psid);
+      if (root == null) {
+        root = s;
+      }
       if (start == null || TimestampHelper.isBefore(s.getStartTime(), start)) {
         start = s.getStartTime();
       }
@@ -117,6 +250,7 @@ public final class TraceHelper {
       }
       spans.add(s);
     }
+
 
     return Trace.newBuilder()
         .setLandscapeToken(landscapeToken)
@@ -130,37 +264,6 @@ public final class TraceHelper {
         .build();
   }
 
-  public static Trace randomTrace(final int spanAmount, final String landscapeToken,
-      final long fromSeconds, final long toSeconds) {
-
-    final String traceId = RandomStringUtils.random(6, true, true);
-
-    Timestamp start = null;
-    Timestamp end = null;
-    final List<SpanDynamic> spans = new ArrayList<>();
-    for (int i = 0; i < spanAmount; i++) {
-      final SpanDynamic s =
-          randomSpanFixedTimeInterval(traceId, landscapeToken, fromSeconds, toSeconds);
-      if (start == null || TimestampHelper.isBefore(s.getStartTime(), start)) {
-        start = s.getStartTime();
-      }
-      if (end == null || TimestampHelper.isAfter(s.getEndTime(), end)) {
-        end = s.getEndTime();
-      }
-      spans.add(s);
-    }
-
-    return Trace.newBuilder()
-        .setLandscapeToken(landscapeToken)
-        .setTraceId(traceId)
-        .setStartTime(start)
-        .setEndTime(end)
-        .setDuration(TimestampHelper.durationMs(start, end))
-        .setSpanList(spans)
-        .setTraceCount(1)
-        .setOverallRequestCount(1)
-        .build();
-  }
 
 
 }

@@ -13,7 +13,7 @@ import org.apache.kafka.streams.processor.TimestampExtractor;
 @RegisterForReflection
 public class SpanTimestampKafkaExtractor implements TimestampExtractor {
 
-  public SpanTimestampKafkaExtractor() { // NOPMD
+  public SpanTimestampKafkaExtractor() {// NOPMD
     // nothing to do, necessary for native image
   }
 

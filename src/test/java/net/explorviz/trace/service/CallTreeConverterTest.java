@@ -7,7 +7,7 @@ import net.explorviz.trace.persistence.dao.SpanDynamic;
 import net.explorviz.trace.persistence.dao.Trace;
 import org.junit.jupiter.api.Test;
 
-public class TraceConverterTest {
+public class CallTreeConverterTest {
 
   @Test
   void testSimpleTraceConversion() {

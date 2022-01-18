@@ -19,7 +19,7 @@ public class SpanDynamic {
   private long startTime;
 
   private long endTime;
-  private String hashCode; // NOPMD
+  private String hashCode;// NOPMD
 
   public SpanDynamic() {
     // for serialization
@@ -108,10 +108,7 @@ public class SpanDynamic {
     if (this == obj) {
       return true;
     }
-    if (obj == null) {
-      return false;
-    }
-    if (this.getClass() != obj.getClass()) {
+    if (obj == null || this.getClass() != obj.getClass()) {
       return false;
     }
     final SpanDynamic other = (SpanDynamic) obj;

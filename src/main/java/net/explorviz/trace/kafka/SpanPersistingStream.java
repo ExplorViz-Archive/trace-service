@@ -18,6 +18,10 @@ import net.explorviz.avro.SpanDynamic;
 import net.explorviz.avro.Trace;
 import net.explorviz.trace.service.TraceAggregator;
 import net.explorviz.trace.service.TraceRepository;
+import net.explorviz.trace.service.reduction.CallTree;
+import net.explorviz.trace.service.reduction.CallTreeConverter;
+import net.explorviz.trace.service.reduction.DepthReducer;
+import net.explorviz.trace.service.reduction.SimpleLoopReducer;
 import org.apache.avro.specific.SpecificRecord;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
@@ -49,10 +53,11 @@ public class SpanPersistingStream {
 
   public static final long WINDOW_SIZE_MS = 10_000;
   public static final long GRACE_MS = 2_000;
+  public static final int REDUCTION_DEPTH = 10;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SpanPersistingStream.class);
 
-  @Inject // NOPMD
+  @Inject
   /* default */ MeterRegistry meterRegistry; // NOPMD NOCS
 
   private final Properties streamsConfig = new Properties();
@@ -66,7 +71,9 @@ public class SpanPersistingStream {
   private final TraceRepository traceRepository;
   private boolean logInitData = true;
 
-
+  // Reducer
+  private final DepthReducer depthReducer;
+  private final SimpleLoopReducer loopReducer;
 
   @Inject
   public SpanPersistingStream(final SchemaRegistryClient schemaRegistryClient,
@@ -79,6 +86,9 @@ public class SpanPersistingStream {
     this.setupStreamsConfig();
 
     this.traceRepository = traceRepository;
+
+    this.depthReducer = new DepthReducer(REDUCTION_DEPTH);
+    this.loopReducer = new SimpleLoopReducer();
   }
 
   /* default */ void onStart(@Observes final StartupEvent event) { // NOPMD
@@ -88,8 +98,8 @@ public class SpanPersistingStream {
 
     this.streams.start();
 
-    final KafkaStreamsMetrics ksm = new KafkaStreamsMetrics(this.streams);
-    ksm.bindTo(meterRegistry);
+    final KafkaStreamsMetrics ksm = new KafkaStreamsMetrics(this.streams);// NOPMD
+    ksm.bindTo(this.meterRegistry);
   }
 
   /* default */ void onStop(@Observes final ShutdownEvent event) { // NOPMD
@@ -139,7 +149,36 @@ public class SpanPersistingStream {
     final KStream<String, Trace> traceStream =
         traceTable.toStream().selectKey((k, v) -> v.getLandscapeToken() + "::" + k);
 
-    traceStream.foreach((k, t) -> {
+    // traceStream.foreach(
+    // (key, value) -> System.out.println("|Trace.spans()| = " + value.getSpanList().size()));
+
+
+    final KStream<String, Trace> reducedTraceStream = traceStream.mapValues((k, trace) -> {
+      final int tracesOriginal = trace.getSpanList().size();
+      try {
+        final CallTree tree = CallTreeConverter.toTree(trace);
+        CallTree reduced = this.depthReducer.reduce(tree);
+        reduced = this.loopReducer.reduce(reduced);
+        final Trace reducedTrace = CallTreeConverter.toTrace(reduced);
+        if (LOGGER.isInfoEnabled()) {
+          LOGGER.info("Reduced {} spans", tracesOriginal - reducedTrace.getSpanList().size());
+        }
+        return reducedTrace;
+      } catch (final IllegalArgumentException e) {
+        if (LOGGER.isWarnEnabled()) {
+          LOGGER.warn("Could not perform reduction: {}", e.getMessage());
+        }
+        return trace;
+      }
+
+    });
+
+
+    // reducedTraceStream.foreach((key, value) -> System.out
+    // .println("Reduction |Trace.spans()| = " + value.getSpanList().size()));
+
+
+    reducedTraceStream.foreach((k, t) -> {
 
       if (this.logInitData && LOGGER.isDebugEnabled()) {
         this.logInitData = false;

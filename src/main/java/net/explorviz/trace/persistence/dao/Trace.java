@@ -123,17 +123,11 @@ public class Trace {
     if (this == obj) {
       return true;
     }
-    if (obj == null) {
-      return false;
-    }
-    if (this.getClass() != obj.getClass()) {
+    if (obj == null || this.getClass() != obj.getClass()) {
       return false;
     }
     final Trace other = (Trace) obj;
-    if (this.duration != other.duration) {
-      return false;
-    }
-    if (this.endTime != other.endTime) {
+    if (this.duration != other.duration || this.endTime != other.endTime) {
       return false;
     }
     if (this.landscapeToken == null) {
