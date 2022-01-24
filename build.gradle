@@ -66,6 +66,8 @@ dependencies {
   
   implementation group: 'io.quarkus', name: 'quarkus-bom', version: '1.11.0.Final', ext: 'pom'
   
+  implementation 'io.quarkus:quarkus-scheduler'
+  
   // Cassandra
   implementation group: 'com.datastax.oss.quarkus', name: 'cassandra-quarkus-bom', version: '1.0.0', ext: 'pom'  
   annotationProcessor group: 'com.datastax.oss', name: 'java-driver-mapper-processor', version: '4.10.0'

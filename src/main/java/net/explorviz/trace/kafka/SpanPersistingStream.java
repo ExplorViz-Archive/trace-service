@@ -8,9 +8,11 @@ import io.micrometer.core.instrument.binder.kafka.KafkaStreamsMetrics;
 import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;
+import io.quarkus.scheduler.Scheduled;
 import java.time.Duration;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
@@ -58,7 +60,12 @@ public class SpanPersistingStream {
   private static final Logger LOGGER = LoggerFactory.getLogger(SpanPersistingStream.class);
 
   @Inject
+  // NOPMD
   /* default */ MeterRegistry meterRegistry; // NOPMD NOCS
+
+  private final AtomicInteger lastReceivedTotalSpans = new AtomicInteger(0);
+  private final AtomicInteger reconstructedTracesCount = new AtomicInteger(0);
+  private final AtomicInteger spanReducedTracesCount = new AtomicInteger(0);
 
   private final Properties streamsConfig = new Properties();
   private final Topology topology;
@@ -69,7 +76,6 @@ public class SpanPersistingStream {
   private KafkaStreams streams;
 
   private final TraceRepository traceRepository;
-  private boolean logInitData = true;
 
   // Reducer
   private final DepthReducer depthReducer;
@@ -131,27 +137,35 @@ public class SpanPersistingStream {
     final KStream<String, SpanDynamic> spanStream = builder.stream(this.config.getInTopic(),
         Consumed.with(Serdes.String(), this.getAvroSerde(false)));
 
+    // DEBUG Total spans
+    spanStream.foreach((key, value) -> {
+      this.lastReceivedTotalSpans.incrementAndGet();
+    });
+
     final TimeWindows traceWindow =
         TimeWindows.of(Duration.ofMillis(WINDOW_SIZE_MS)).grace(Duration.ofMillis(GRACE_MS));
 
     final TraceAggregator aggregator = new TraceAggregator();
 
     // Group by landscapeToken::TraceId
-    final KTable<Windowed<String>, Trace> traceTable =
-        spanStream.groupBy((k, v) -> v.getLandscapeToken() + "::" + v.getTraceId(),
+    final KTable<Windowed<String>, Trace> traceTable = spanStream
+        .groupBy((k, v) -> v.getLandscapeToken() + "::" + v.getTraceId(),
             Grouped.with(Serdes.String(), this.getAvroSerde(false)))
-            .windowedBy(traceWindow)
-            .aggregate(Trace::new,
-                (key, value, aggregate) -> aggregator.aggregate(aggregate, value),
-                Materialized.with(Serdes.String(), this.getAvroSerde(false)))
-            .suppress(Suppressed.untilWindowCloses(Suppressed.BufferConfig.unbounded()));
+        .windowedBy(traceWindow)
+        .aggregate(Trace::new, (key, value, aggregate) -> aggregator.aggregate(aggregate, value),
+            Materialized.with(Serdes.String(), this.getAvroSerde(false)))
+        .suppress(Suppressed.untilWindowCloses(Suppressed.BufferConfig.unbounded()));
 
     final KStream<String, Trace> traceStream =
         traceTable.toStream().selectKey((k, v) -> v.getLandscapeToken() + "::" + k);
 
+    // DEBUG Total traces for window
+    traceStream.foreach((key, value) -> {
+      this.reconstructedTracesCount.incrementAndGet();
+    });
+
     // traceStream.foreach(
     // (key, value) -> System.out.println("|Trace.spans()| = " + value.getSpanList().size()));
-
 
     final KStream<String, Trace> reducedTraceStream = traceStream.mapValues((k, trace) -> {
       final int tracesOriginal = trace.getSpanList().size();
@@ -160,8 +174,8 @@ public class SpanPersistingStream {
         CallTree reduced = this.depthReducer.reduce(tree);
         reduced = this.loopReducer.reduce(reduced);
         final Trace reducedTrace = CallTreeConverter.toTrace(reduced);
-        if (LOGGER.isInfoEnabled()) {
-          LOGGER.info("Reduced {} spans", tracesOriginal - reducedTrace.getSpanList().size());
+        if (LOGGER.isTraceEnabled()) {
+          LOGGER.trace("Reduced {} spans", tracesOriginal - reducedTrace.getSpanList().size());
         }
         return reducedTrace;
       } catch (final IllegalArgumentException e) {
@@ -180,19 +194,26 @@ public class SpanPersistingStream {
 
     reducedTraceStream.foreach((k, t) -> {
 
-      if (this.logInitData && LOGGER.isDebugEnabled()) {
-        this.logInitData = false;
-        LOGGER.debug("Received data via Kafka.");
-      }
-
-      if (LOGGER.isTraceEnabled()) {
-        LOGGER.trace("Received trace record: {}", t.toString());
-      }
+      // DEBUG Total traces for window
+      this.spanReducedTracesCount.incrementAndGet();
 
       this.traceRepository.insert(t).await().indefinitely();
     });
 
     return builder.build();
+  }
+
+  @Scheduled(every = "{explorviz.log.span.interval}") // NOPMD
+  void logStatus() { // NOPMD
+    final int totalSpans = this.lastReceivedTotalSpans.getAndSet(0);
+    final int reconstructedTraces = this.reconstructedTracesCount.getAndSet(0);
+    final int spanReducedTraces = this.spanReducedTracesCount.getAndSet(0);
+    if (LOGGER.isDebugEnabled()) {
+      LOGGER.debug(
+          "Received {} spans: {} trace reconstructed in"
+              + " {} time window, the Spans of {} traces have been reduced.",
+          totalSpans, reconstructedTraces, WINDOW_SIZE_MS, spanReducedTraces);
+    }
   }
 
   /**
@@ -217,9 +238,8 @@ public class SpanPersistingStream {
       if (newState.equals(State.ERROR)) {
 
         if (LOGGER.isErrorEnabled()) {
-          LOGGER.error(
-              "Kafka Streams thread died. "
-                  + "Are Kafka topic initialized? Quarkus application will shut down.");
+          LOGGER.error("Kafka Streams thread died. "
+              + "Are Kafka topic initialized? Quarkus application will shut down.");
         }
         Quarkus.asyncExit(-1);
       }
