@@ -24,6 +24,10 @@ public class TraceRepository {
     return this.traceReactiveService.insert(TraceConverter.convertTraceToDao(t));
   }
 
+  public Uni<Void> delete(final String landscapeTokenValue) {
+    return this.traceReactiveService.deleteByLandscapeToken(landscapeTokenValue);
+  }
+
   public Uni<Void> insert(final Trace daoTrace) {
     return this.traceReactiveService.insert(daoTrace);
   }
@@ -46,5 +50,6 @@ public class TraceRepository {
     return this.traceReactiveService.getAllAsync(clonedLandscapeToken)
         .invoke(x -> x.setLandscapeToken(landscapeToken)).call(this::insert);
   }
+
 
 }

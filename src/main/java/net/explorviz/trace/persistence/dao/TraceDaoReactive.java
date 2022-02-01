@@ -1,6 +1,7 @@
 package net.explorviz.trace.persistence.dao;
 
 import com.datastax.oss.driver.api.mapper.annotations.Dao;
+import com.datastax.oss.driver.api.mapper.annotations.Delete;
 import com.datastax.oss.driver.api.mapper.annotations.Insert;
 import com.datastax.oss.driver.api.mapper.annotations.Select;
 import com.datastax.oss.quarkus.runtime.api.reactive.mapper.MutinyMappedReactiveResultSet;
@@ -15,12 +16,14 @@ public interface TraceDaoReactive {
   @Insert
   Uni<Void> insertAsync(Trace trace);
 
+  @Delete(customWhereClause = "landscape_token = :id", entityClass = Trace.class)
+  Uni<Void> deleteAsync(String id);
+
   @Select(customWhereClause = "landscape_token = :id")
   MutinyMappedReactiveResultSet<Trace> getAllAsync(String id);
 
-  @Select(
-      customWhereClause = "landscape_token = :id and start_time >= :startTime and "
-          + "start_time <= :endTime")
+  @Select(customWhereClause = "landscape_token = :id and start_time >= :startTime and "
+      + "start_time <= :endTime")
   MutinyMappedReactiveResultSet<Trace> getByStartTimeAndEndTime(String id, long startTime,
       long endTime);
 

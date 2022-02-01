@@ -1,6 +1,7 @@
 package net.explorviz.trace.events;
 
 import io.smallrye.mutiny.infrastructure.Infrastructure;
+import io.smallrye.reactive.messaging.kafka.Record;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import net.explorviz.avro.EventType;
@@ -9,7 +10,6 @@ import net.explorviz.trace.service.TraceRepository;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 /**
  * Waits for and reacts to token-events dispatched by the User-Service. Such events are read from a
@@ -36,25 +36,30 @@ public class TokenEventConsumer {
    * @param event the token-event
    */
   @Incoming("token-events")
-  public void process(final TokenEvent event) {
+  public void process(final Record<String, TokenEvent> record) {
+
+    final String tokenValueKey = record.key();
+    final TokenEvent tokenEvent = record.value();
+
     if (LOGGER.isTraceEnabled()) {
-      LOGGER.trace("Received event {}", event);
+      LOGGER.trace("Received event for token value {} with event {}", tokenValueKey, tokenEvent);
     }
-    if (event.getType() == EventType.DELETED) {
-      // this.service.deleteAll(event.getToken());
+
+    // tombstone record
+    if (tokenEvent == null) {
       if (LOGGER.isTraceEnabled()) {
-        LOGGER.trace("Deleting traces for token {}", event.getToken());
+        LOGGER.trace("Deleting landscape for token value{}", tokenValueKey);
       }
-    } else if (event.getType() == EventType.CLONED) {
+      this.service.delete(tokenValueKey);
+    } else if (tokenEvent.getType() == EventType.CLONED) {
       if (LOGGER.isTraceEnabled()) {
-        LOGGER.trace("Cloning traces for token {}", event.getToken());
+        LOGGER.trace("Cloning landscapes for token {}", tokenEvent.getToken());
       }
-      this.service.cloneAllAsync(event.getToken().getValue(), event.getClonedToken())
-          .runSubscriptionOn(Infrastructure.getDefaultWorkerPool())
-          .subscribe().with(
-              item -> LOGGER.trace("Cloned trace for {}", item.getLandscapeToken()),
+      this.service.cloneAllAsync(tokenEvent.getToken().getValue(), tokenEvent.getClonedToken())
+          .runSubscriptionOn(Infrastructure.getDefaultWorkerPool()).subscribe()
+          .with(item -> LOGGER.trace("Cloned landscape for {}", item.getLandscapeToken()),
               failure -> LOGGER.error("Failed to duplicate", failure),
-              () -> LOGGER.trace("Cloned all traces for {}", event.getToken()));
+              () -> LOGGER.trace("Cloned all landscapes for {}", tokenEvent.getToken()));
     }
   }
 
