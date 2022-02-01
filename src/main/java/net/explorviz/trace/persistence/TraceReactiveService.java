@@ -24,6 +24,10 @@ public class TraceReactiveService {
     return this.traceDaoReactive.insertAsync(trace);
   }
 
+  public Uni<Void> deleteByLandscapeToken(final String landscapeTokenValue) {
+    return this.traceDaoReactive.deleteAsync(landscapeTokenValue);
+  }
+
   public Multi<Trace> getAllAsync(final String landscapeToken) {
     return this.traceDaoReactive.getAllAsync(landscapeToken);
   }
@@ -36,4 +40,5 @@ public class TraceReactiveService {
   public Multi<Trace> getByTraceId(final String landscapeToken, final String traceId) {
     return this.traceDaoReactive.getByTraceId(landscapeToken, traceId);
   }
+
 }

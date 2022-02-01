@@ -47,4 +47,9 @@ public class TraceRepository {
         .invoke(x -> x.setLandscapeToken(landscapeToken)).call(this::insert);
   }
 
+  public Uni<Void> delete(final String landscapeTokenValue) {
+    return this.traceReactiveService.deleteByLandscapeToken(landscapeTokenValue);
+  }
+
+
 }
