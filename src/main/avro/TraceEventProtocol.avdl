@@ -1,0 +1,51 @@
+@namespace("net.explorviz.avro")
+protocol TraceEventProtocol {
+	
+	enum EventType {
+	   CREATED,
+	   DELETED,
+	   ACCESS_GRANTED,
+	   ACCESS_REVOKED,
+	   CLONED
+	}
+	
+	record LandscapeToken {
+		string value;
+		string ownerId;
+		string secret;
+		long created;
+		string alias;
+	}
+	
+	record TokenEvent {
+		EventType type;
+		LandscapeToken token;
+		string clonedToken;
+	}
+	
+	record Timestamp {
+		long seconds;
+		int nanoAdjust;
+	}	
+	
+	record SpanDynamic {
+		string landscapeToken;
+		string spanId;
+		string parentSpanId;
+		string traceId;
+		Timestamp startTime;
+		Timestamp endTime;
+		string hashCode;
+	}
+	
+	record Trace {
+		string landscapeToken;
+		string traceId;
+		Timestamp startTime;
+		Timestamp endTime;
+		long duration;
+		int overallRequestCount = 1;
+		int traceCount = 1;
+		array<SpanDynamic> spanList;
+	}
+}
