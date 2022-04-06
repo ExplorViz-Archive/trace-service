@@ -2,6 +2,8 @@ package net.explorviz.trace.service.reduction;
 
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicReference;
+import javax.enterprise.context.ApplicationScoped;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 
 /**
@@ -9,9 +11,15 @@ import java.util.concurrent.atomic.AtomicReference;
  * reducer then proceeds to cut off levels of a call tree that are deeper that the passed depth
  * limit.
  */
+@ApplicationScoped
 public class DepthReducer implements SpanReducer {
 
-  private final int depthLimit;
+  @ConfigProperty(name = "explorviz.reduction.depthlimit")
+  /* default */ int depthLimit; // NOCS
+
+  public DepthReducer() {
+    // for injection
+  }
 
   public DepthReducer(final int depthLimit) {
     this.depthLimit = depthLimit;
@@ -19,6 +27,7 @@ public class DepthReducer implements SpanReducer {
       throw new IllegalArgumentException("Depth limit must at least be 1");
     }
   }
+
 
   @Override
   public CallTree reduce(final CallTree tree) {

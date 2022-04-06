@@ -1,4 +1,4 @@
-package net.explorviz.trace;
+package net.explorviz.trace.kafka;
 
 import java.time.Instant;
 import java.util.ArrayList;

@@ -1,8 +1,9 @@
 package net.explorviz.trace.kafka;
 
-import io.confluent.kafka.schemaregistry.client.MockSchemaRegistryClient;
 import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig;
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde;
+import io.quarkus.test.junit.QuarkusMock;
+import io.quarkus.test.junit.QuarkusTest;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -10,10 +11,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import javax.inject.Inject;
 import net.explorviz.avro.SpanDynamic;
 import net.explorviz.avro.Timestamp;
 import net.explorviz.avro.Trace;
-import net.explorviz.trace.TraceHelper;
 import net.explorviz.trace.service.TimestampHelper;
 import net.explorviz.trace.service.TraceRepository;
 import org.apache.kafka.common.serialization.Serdes;
@@ -22,6 +23,7 @@ import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.TestInputTopic;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.TopologyTestDriver;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -30,44 +32,47 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
-class SpanPersistingStreamTest {
+@QuarkusTest
+class TopologyTest {
 
-  private static final Logger LOGGER = Logger.getLogger(SpanPersistingStreamTest.class);
+  private static final Logger LOGGER = Logger.getLogger(TopologyTest.class);
 
   private TopologyTestDriver testDriver;
-  private TestInputTopic<String, SpanDynamic> inputTopic;
-  private SpecificAvroSerde<SpanDynamic> spanDynamicSerde;
 
-  private TraceRepository traceRepository;
+  private TestInputTopic<String, SpanDynamic> inputTopic;
+
+  @ConfigProperty(name = "explorviz.kafka-streams.topics.in")
+  /* default */ String inTopic;
+
+  @ConfigProperty(name = "explorviz.kafka-streams.window.size")
+  /* default */ long windowSizeInMs; // NOCS
+
+  @ConfigProperty(name = "explorviz.kafka-streams.window.grace")
+  /* default */ long graceSizeInMs; // NOCS
+
+  @Inject
+  Topology topology;
+
+  @Inject
+  SpecificAvroSerde<SpanDynamic> spanDynamicSerde; // NOCS
+
+  TraceRepository traceRepository;
 
   @BeforeEach
   void setUp() {
+    final Properties config = new Properties();
+    config.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
+    config.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, SpecificAvroSerde.class.getName());
+    config.put(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, "http://registry:1234");
 
-    final MockSchemaRegistryClient mockSRC = new MockSchemaRegistryClient();
+    this.testDriver = new TopologyTestDriver(this.topology, config);
 
     this.traceRepository = Mockito.mock(TraceRepository.class);
+    QuarkusMock.installMockForType(this.traceRepository, TraceRepository.class);
 
-    final KafkaConfig config = Utils.testKafkaConfigs();
+    this.inputTopic = this.testDriver.createInputTopic(this.inTopic, Serdes.String().serializer(),
+        this.spanDynamicSerde.serializer());
 
-    final Topology topology =
-        new SpanPersistingStream(mockSRC, config, this.traceRepository).getTopology();
-
-    this.spanDynamicSerde = new SpecificAvroSerde<>(mockSRC);
-
-    final Properties props = new Properties();
-    props.put(StreamsConfig.APPLICATION_ID_CONFIG, "test");
-    props.put(StreamsConfig.DEFAULT_TIMESTAMP_EXTRACTOR_CLASS_CONFIG,
-        config.getTimestampExtractor());
-    props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "dummy:1234");
-
-    final Map<String, String> conf =
-        Map.of(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, "http://dummy");
-    this.spanDynamicSerde.serializer().configure(conf, false);
-
-    this.testDriver = new TopologyTestDriver(topology, props);
-
-    this.inputTopic = this.testDriver.createInputTopic(config.getInTopic(),
-        Serdes.String().serializer(), this.spanDynamicSerde.serializer());
   }
 
   @AfterEach
@@ -90,6 +95,7 @@ class SpanPersistingStreamTest {
       mockSpanDB.add(inserted);
       return null;
     }).when(this.traceRepository).insert(ArgumentMatchers.any(Trace.class));
+    QuarkusMock.installMockForType(this.traceRepository, TraceRepository.class);
 
     final SpanDynamic testSpan = TraceHelper.randomSpan();
 
@@ -106,8 +112,7 @@ class SpanPersistingStreamTest {
     final Map<String, Trace> mockSpanDB = new HashMap<>();
     Mockito.doAnswer(i -> {
       final Trace inserted = i.getArgument(0, Trace.class);
-      final String key = inserted.getLandscapeToken() +
-          "::" + inserted.getTraceId();
+      final String key = inserted.getLandscapeToken() + "::" + inserted.getTraceId();
       mockSpanDB.put(key, inserted);
       return null;
     }).when(this.traceRepository).insert(ArgumentMatchers.any(Trace.class));
@@ -115,11 +120,9 @@ class SpanPersistingStreamTest {
     final int spansPerTrace = 20;
 
     final Trace testTrace = TraceHelper.randomTrace(spansPerTrace);
-    Timestamp t =
-        testTrace.getStartTime();
+    Timestamp t = testTrace.getStartTime();
     for (final SpanDynamic s : testTrace.getSpanList()) {
-      t =
-          Timestamp.newBuilder(t).setNanoAdjust(t.getNanoAdjust() + 1).build();
+      t = Timestamp.newBuilder(t).setNanoAdjust(t.getNanoAdjust() + 1).build();
       s.setStartTime(t);
       this.inputTopic.pipeInput(s.getTraceId(), s);
     }
@@ -127,8 +130,7 @@ class SpanPersistingStreamTest {
 
     final String k = testTrace.getLandscapeToken() + "::" + testTrace.getTraceId();
     Assertions.assertEquals(1, mockSpanDB.size());
-    Assertions.assertEquals(testTrace.getSpanList().size(),
-        mockSpanDB.get(k).getSpanList().size());
+    Assertions.assertEquals(testTrace.getSpanList().size(), mockSpanDB.get(k).getSpanList().size());
   }
 
   @Test
@@ -147,16 +149,13 @@ class SpanPersistingStreamTest {
 
     // Create multiple traces that happen in parallel
     final List<KeyValue<String, SpanDynamic>> traces = new ArrayList<>();
-    final Timestamp baseTime =
-        TraceHelper.randomTrace(1).getStartTime();
+    final Timestamp baseTime = TraceHelper.randomTrace(1).getStartTime();
     for (int i = 0; i < traceAmount; i++) {
       final Trace testTrace = TraceHelper.randomTrace(spansPerTrace);
-      Timestamp t =
-          Timestamp.newBuilder(baseTime).build();
+      Timestamp t = Timestamp.newBuilder(baseTime).build();
       for (final SpanDynamic s : testTrace.getSpanList()) {
         // Keep spans in one window
-        t = Timestamp.newBuilder(t).setNanoAdjust(t.getNanoAdjust() +
-            2).build();
+        t = Timestamp.newBuilder(t).setNanoAdjust(t.getNanoAdjust() + 2).build();
         s.setStartTime(t);
         traces.add(new KeyValue<>(s.getTraceId(), s));
       }
@@ -166,8 +165,7 @@ class SpanPersistingStreamTest {
     this.forceSuppression(baseTime);
 
     for (final Map.Entry<String, Trace> entry : mockSpanDB.entrySet()) {
-      Assertions.assertEquals(spansPerTrace,
-          entry.getValue().getSpanList().size());
+      Assertions.assertEquals(spansPerTrace, entry.getValue().getSpanList().size());
     }
 
   }
@@ -204,9 +202,8 @@ class SpanPersistingStreamTest {
         ts = Timestamp.newBuilder(ts).setNanoAdjust(ts.getNanoAdjust() + 1).build();
       } else {
         // Last span arrives out of window
-        final long secs = Duration.ofMillis(SpanPersistingStream.WINDOW_SIZE_MS).toSeconds();
-        ts =
-            Timestamp.newBuilder(ts).setSeconds(ts.getSeconds() + secs).build();
+        final long secs = Duration.ofMillis(this.windowSizeInMs).toSeconds();
+        ts = Timestamp.newBuilder(ts).setSeconds(ts.getSeconds() + secs).build();
       }
       s.setStartTime(ts);
       this.inputTopic.pipeInput(s.getTraceId(), s);
@@ -226,8 +223,7 @@ class SpanPersistingStreamTest {
    * the suppression time.
    */
   private void forceSuppression(final Timestamp lastTimestamp) {
-    final Duration secs = Duration.ofMillis(SpanPersistingStream.WINDOW_SIZE_MS)
-        .plusMillis(SpanPersistingStream.GRACE_MS);
+    final Duration secs = Duration.ofMillis(this.windowSizeInMs).plusMillis(this.graceSizeInMs);
     final SpanDynamic dummy = TraceHelper.randomSpan();
 
     final Instant ts = TimestampHelper.toInstant(lastTimestamp).plus(secs);

@@ -92,6 +92,8 @@ dependencies {
   testImplementation 'io.quarkus:quarkus-junit5'
   testImplementation 'io.quarkus:quarkus-junit5-mockito'
 
+  testImplementation group: 'org.apache.kafka', name: 'kafka-streams-test-utils', version: '3.1.0'  
+
   // Why do these have to also be declared as testImplementation Dependency?
   testImplementation 'io.rest-assured:rest-assured'
   testImplementation 'com.datastax.oss.quarkus:cassandra-quarkus-test-framework'
@@ -104,9 +106,7 @@ dependencies {
 
   // Integration Testing  
   integrationTestImplementation 'io.quarkus:quarkus-junit5'  
-  integrationTestImplementation 'org.mockito:mockito-junit-jupiter'
-  
-  integrationTestImplementation group: 'org.apache.kafka', name: 'kafka-streams-test-utils', version: '3.1.0'  
+  integrationTestImplementation 'org.mockito:mockito-junit-jupiter'  
 }
 
 group 'net.explorviz'
