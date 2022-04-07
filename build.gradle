@@ -62,8 +62,7 @@ dependencies {
   
   implementation 'io.quarkus:quarkus-container-image-jib'
   implementation 'io.quarkus:quarkus-micrometer-registry-prometheus'
-  
-  
+   
   // Base    
   implementation 'io.quarkus:quarkus-scheduler'
   implementation 'io.quarkus:quarkus-resteasy-mutiny'
@@ -86,18 +85,13 @@ dependencies {
   implementation group: 'io.confluent', name: 'kafka-avro-serializer', version: '7.0.1'
   implementation group: 'io.confluent', name: 'kafka-streams-avro-serde', version: '7.0.1'
   implementation 'io.quarkus:quarkus-avro'
-  implementation 'io.quarkus:quarkus-smallrye-reactive-messaging-kafka' 
+  implementation 'io.quarkus:quarkus-smallrye-reactive-messaging-kafka'
   
   // Unit Testing  
   testImplementation 'io.quarkus:quarkus-junit5'
   testImplementation 'io.quarkus:quarkus-junit5-mockito'
 
-  testImplementation group: 'org.apache.kafka', name: 'kafka-streams-test-utils', version: '3.1.0'  
-
-  // Why do these have to also be declared as testImplementation Dependency?
-  testImplementation 'io.rest-assured:rest-assured'
-  testImplementation 'com.datastax.oss.quarkus:cassandra-quarkus-test-framework'
-  testImplementation "org.testcontainers:kafka:1.15.2"
+  testImplementation group: 'org.apache.kafka', name: 'kafka-streams-test-utils', version: '3.1.0'
   
   // Integration / Api Tests
   integrationTestImplementation 'io.rest-assured:rest-assured'
@@ -105,8 +99,8 @@ dependencies {
   integrationTestImplementation "org.testcontainers:kafka:1.15.2"
 
   // Integration Testing  
-  integrationTestImplementation 'io.quarkus:quarkus-junit5'  
-  integrationTestImplementation 'org.mockito:mockito-junit-jupiter'  
+  integrationTestImplementation 'io.quarkus:quarkus-junit5'
+  integrationTestImplementation 'org.mockito:mockito-junit-jupiter'
 }
 
 group 'net.explorviz'
