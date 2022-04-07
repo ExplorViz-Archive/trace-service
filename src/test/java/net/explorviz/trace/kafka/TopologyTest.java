@@ -4,6 +4,7 @@ import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig;
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
+import io.smallrye.mutiny.Uni;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -64,6 +65,9 @@ class TopologyTest {
     config.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
     config.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, SpecificAvroSerde.class.getName());
     config.put(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, "http://registry:1234");
+    config.put(StreamsConfig.DEFAULT_TIMESTAMP_EXTRACTOR_CLASS_CONFIG,
+        SpanTimestampKafkaExtractor.class);
+
 
     this.testDriver = new TopologyTestDriver(this.topology, config);
 
@@ -93,9 +97,10 @@ class TopologyTest {
     Mockito.doAnswer(i -> {
       final Trace inserted = i.getArgument(0, Trace.class);
       mockSpanDB.add(inserted);
-      return null;
+      return Uni.createFrom().nullItem();
     }).when(this.traceRepository).insert(ArgumentMatchers.any(Trace.class));
-    QuarkusMock.installMockForType(this.traceRepository, TraceRepository.class);
+
+    // QuarkusMock.installMockForType(this.traceRepository, TraceRepository.class);
 
     final SpanDynamic testSpan = TraceHelper.randomSpan();
 
@@ -114,7 +119,7 @@ class TopologyTest {
       final Trace inserted = i.getArgument(0, Trace.class);
       final String key = inserted.getLandscapeToken() + "::" + inserted.getTraceId();
       mockSpanDB.put(key, inserted);
-      return null;
+      return Uni.createFrom().nullItem();
     }).when(this.traceRepository).insert(ArgumentMatchers.any(Trace.class));
 
     final int spansPerTrace = 20;
@@ -141,7 +146,7 @@ class TopologyTest {
       final Trace inserted = i.getArgument(0, Trace.class);
       final String key = inserted.getLandscapeToken() + "::" + inserted.getTraceId();
       mockSpanDB.put(key, inserted);
-      return null;
+      return Uni.createFrom().nullItem();
     }).when(this.traceRepository).insert(ArgumentMatchers.any(Trace.class));
 
     final int spansPerTrace = 20;
@@ -188,7 +193,7 @@ class TopologyTest {
       // return v;
       // });
       mockSpanDB.putIfAbsent(key, inserted);
-      return null;
+      return Uni.createFrom().nullItem();
     }).when(this.traceRepository).insert(ArgumentMatchers.any(Trace.class));
 
     // push spans on topic
