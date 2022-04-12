@@ -30,14 +30,13 @@ public class TraceResourceIt {
   @Test
   public void shouldSaveAndRetrieveEntityById() throws InterruptedException {
 
-    final Trace expected =
-        TraceConverter.convertTraceToDao(TraceHelper.randomTrace(5));
+    final Trace expected = TraceConverter.convertTraceToDao(TraceHelper.randomTrace(5));
 
     this.repository.insert(expected).await().indefinitely();
 
     final Trace actual =
-        this.repository.getByTraceId(expected.getLandscapeToken(), expected.getTraceId())
-            .collectItems().first().await().indefinitely();
+        this.repository.getByTraceId(expected.getLandscapeToken(), expected.getTraceId()).collect()
+            .first().await().indefinitely();
 
     Assertions.assertEquals(expected, actual);
   }
@@ -45,16 +44,11 @@ public class TraceResourceIt {
   @Test
   public void shouldSaveAndRetrieveMultipleEntitiesById() throws InterruptedException {
 
-    final Trace expected1 =
-        TraceConverter.convertTraceToDao(TraceHelper.randomTrace(5));
-    final Trace expected2 =
-        TraceConverter.convertTraceToDao(TraceHelper.randomTrace(5));
-    final Trace expected3 =
-        TraceConverter.convertTraceToDao(TraceHelper.randomTrace(5));
-    final Trace expected4 =
-        TraceConverter.convertTraceToDao(TraceHelper.randomTrace(5));
-    final Trace expected5 =
-        TraceConverter.convertTraceToDao(TraceHelper.randomTrace(5));
+    final Trace expected1 = TraceConverter.convertTraceToDao(TraceHelper.randomTrace(5));
+    final Trace expected2 = TraceConverter.convertTraceToDao(TraceHelper.randomTrace(5));
+    final Trace expected3 = TraceConverter.convertTraceToDao(TraceHelper.randomTrace(5));
+    final Trace expected4 = TraceConverter.convertTraceToDao(TraceHelper.randomTrace(5));
+    final Trace expected5 = TraceConverter.convertTraceToDao(TraceHelper.randomTrace(5));
 
     this.repository.insert(expected1).await().indefinitely();
     this.repository.insert(expected2).await().indefinitely();
@@ -64,23 +58,23 @@ public class TraceResourceIt {
 
     final Trace actual1 =
         this.repository.getByTraceId(expected1.getLandscapeToken(), expected1.getTraceId())
-            .collectItems().first().await().indefinitely();
+            .collect().first().await().indefinitely();
 
     final Trace actual2 =
         this.repository.getByTraceId(expected2.getLandscapeToken(), expected2.getTraceId())
-            .collectItems().first().await().indefinitely();
+            .collect().first().await().indefinitely();
 
     final Trace actual3 =
         this.repository.getByTraceId(expected3.getLandscapeToken(), expected3.getTraceId())
-            .collectItems().first().await().indefinitely();
+            .collect().first().await().indefinitely();
 
     final Trace actual4 =
         this.repository.getByTraceId(expected4.getLandscapeToken(), expected4.getTraceId())
-            .collectItems().first().await().indefinitely();
+            .collect().first().await().indefinitely();
 
     final Trace actual5 =
         this.repository.getByTraceId(expected5.getLandscapeToken(), expected5.getTraceId())
-            .collectItems().first().await().indefinitely();
+            .collect().first().await().indefinitely();
 
     Assertions.assertEquals(expected1, actual1);
     Assertions.assertEquals(expected2, actual2);
@@ -119,7 +113,7 @@ public class TraceResourceIt {
     this.repository.insert(expected5).await().indefinitely();
 
     final List<Trace> actualTraceList =
-        this.repository.getAllAsync(landscapeToken).collectItems().asList().await().indefinitely();
+        this.repository.getAllAsync(landscapeToken).collect().asList().await().indefinitely();
 
     Assertions.assertTrue(expectedList.size() == actualTraceList.size());
 
@@ -141,21 +135,16 @@ public class TraceResourceIt {
     final long fromSeconds2 = 1605700811L;
     final long toSeconds2 = 1605700821L;
 
-    final Trace expected1 =
-        TraceConverter.convertTraceToDao(
-            TraceHelper.randomTrace(5, landscapeToken, fromSeconds1, toSeconds1));
-    final Trace expected2 =
-        TraceConverter.convertTraceToDao(
-            TraceHelper.randomTrace(5, landscapeToken, fromSeconds1, toSeconds1));
-    final Trace expected3 =
-        TraceConverter.convertTraceToDao(
-            TraceHelper.randomTrace(5, landscapeToken, fromSeconds1, toSeconds1));
-    final Trace remainder4 =
-        TraceConverter.convertTraceToDao(
-            TraceHelper.randomTrace(5, landscapeToken, fromSeconds2, toSeconds2));
-    final Trace remainder5 =
-        TraceConverter.convertTraceToDao(
-            TraceHelper.randomTrace(5, landscapeToken, fromSeconds2, toSeconds2));
+    final Trace expected1 = TraceConverter
+        .convertTraceToDao(TraceHelper.randomTrace(5, landscapeToken, fromSeconds1, toSeconds1));
+    final Trace expected2 = TraceConverter
+        .convertTraceToDao(TraceHelper.randomTrace(5, landscapeToken, fromSeconds1, toSeconds1));
+    final Trace expected3 = TraceConverter
+        .convertTraceToDao(TraceHelper.randomTrace(5, landscapeToken, fromSeconds1, toSeconds1));
+    final Trace remainder4 = TraceConverter
+        .convertTraceToDao(TraceHelper.randomTrace(5, landscapeToken, fromSeconds2, toSeconds2));
+    final Trace remainder5 = TraceConverter
+        .convertTraceToDao(TraceHelper.randomTrace(5, landscapeToken, fromSeconds2, toSeconds2));
 
     long filteringKey =
         expected1.getStartTime() <= expected2.getStartTime() ? expected1.getStartTime()
@@ -177,7 +166,7 @@ public class TraceResourceIt {
 
     final List<Trace> actualTraceList =
         this.repository.getByStartTimeAndEndTime(landscapeToken, filteringKey, filteringKey + 1000)
-            .collectItems().asList().await().indefinitely();
+            .collect().asList().await().indefinitely();
 
     Assertions.assertTrue(expectedList.size() == actualTraceList.size());
 
@@ -194,15 +183,12 @@ public class TraceResourceIt {
     final long fromSeconds1 = 1605700800L;
     final long toSeconds1 = 1605700810L;
 
-    final Trace expected1 =
-        TraceConverter.convertTraceToDao(
-            TraceHelper.randomTrace(5, landscapeToken, fromSeconds1, toSeconds1));
-    final Trace expected2 =
-        TraceConverter.convertTraceToDao(
-            TraceHelper.randomTrace(5, landscapeToken, fromSeconds1, toSeconds1));
-    final Trace expected3 =
-        TraceConverter.convertTraceToDao(
-            TraceHelper.randomTrace(5, landscapeToken, fromSeconds1, toSeconds1));
+    final Trace expected1 = TraceConverter
+        .convertTraceToDao(TraceHelper.randomTrace(5, landscapeToken, fromSeconds1, toSeconds1));
+    final Trace expected2 = TraceConverter
+        .convertTraceToDao(TraceHelper.randomTrace(5, landscapeToken, fromSeconds1, toSeconds1));
+    final Trace expected3 = TraceConverter
+        .convertTraceToDao(TraceHelper.randomTrace(5, landscapeToken, fromSeconds1, toSeconds1));
 
     final List<Trace> expectedList = new ArrayList<>();
     expectedList.add(expected1);
@@ -214,15 +200,19 @@ public class TraceResourceIt {
     this.repository.insert(expected3).await().indefinitely();
 
     final String newLandscapeToken = RandomStringUtils.random(32, true, true);
-    var newToken = this.repository.getAllAsync(newLandscapeToken).collectItems().asList().await().indefinitely();
-    var clonedToken = this.repository.getAllAsync(landscapeToken).collectItems().asList().await().indefinitely();
+    final var newToken =
+        this.repository.getAllAsync(newLandscapeToken).collect().asList().await().indefinitely();
+    final var clonedToken =
+        this.repository.getAllAsync(landscapeToken).collect().asList().await().indefinitely();
 
     Assertions.assertEquals(0, newToken.size());
     Assertions.assertEquals(3, clonedToken.size());
 
-    this.repository.cloneAllAsync(newLandscapeToken, landscapeToken).collectItems().asList().await().indefinitely();
+    this.repository.cloneAllAsync(newLandscapeToken, landscapeToken).collect().asList().await()
+        .indefinitely();
 
-    var result = this.repository.getAllAsync(newLandscapeToken).collectItems().asList().await().indefinitely();
+    final var result =
+        this.repository.getAllAsync(newLandscapeToken).collect().asList().await().indefinitely();
 
     Assertions.assertEquals(3, result.size());
   }

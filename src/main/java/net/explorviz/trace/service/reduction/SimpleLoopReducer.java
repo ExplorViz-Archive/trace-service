@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.enterprise.context.ApplicationScoped;
 
 /**
  * {@link SpanReducer} implementation that reduces spans of a {@link CallTree}.
  */
+@ApplicationScoped
 public class SimpleLoopReducer implements SpanReducer {
 
   @Override
@@ -102,8 +104,8 @@ public class SimpleLoopReducer implements SpanReducer {
           // Check if both paths are equal w.r.t. the hashcodes of referenced methods
           boolean isEqualPath = true;
           for (int k = 0; k < uToLca.size() && isEqualPath; k++) {
-            isEqualPath = vToLca.get(k).getSpanDynamic().getHashCode().equals(
-                uToLca.get(k).getSpanDynamic().getHashCode());
+            isEqualPath = vToLca.get(k).getSpanDynamic().getHashCode()
+                .equals(uToLca.get(k).getSpanDynamic().getHashCode());
           }
 
           // v can be reduced
