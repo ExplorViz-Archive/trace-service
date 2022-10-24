@@ -82,21 +82,24 @@ dependencies {
   implementation 'io.quarkus:quarkus-kafka-streams'
   implementation 'io.quarkus:quarkus-resteasy'
   implementation 'io.quarkus:quarkus-resteasy-jackson'
-  implementation group: 'io.confluent', name: 'kafka-avro-serializer', version: '7.0.1'
-  implementation group: 'io.confluent', name: 'kafka-streams-avro-serde', version: '7.0.1'
-  implementation 'io.quarkus:quarkus-avro'
+  implementation 'io.quarkus:quarkus-confluent-registry-avro'
+  implementation group: 'io.confluent', name: 'kafka-avro-serializer', version: '7.2.1'
+  implementation group: 'io.confluent', name: 'kafka-streams-avro-serde', version: '7.2.1'
   implementation 'io.quarkus:quarkus-smallrye-reactive-messaging-kafka'
+  
+  // Utility
+  implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
   
   // Unit Testing  
   testImplementation 'io.quarkus:quarkus-junit5'
   testImplementation 'io.quarkus:quarkus-junit5-mockito'
 
-  testImplementation group: 'org.apache.kafka', name: 'kafka-streams-test-utils', version: '3.1.0'
+  testImplementation group: 'org.apache.kafka', name: 'kafka-streams-test-utils', version: '3.3.1'
   
   // Integration / Api Tests
   integrationTestImplementation 'io.rest-assured:rest-assured'
   integrationTestImplementation 'com.datastax.oss.quarkus:cassandra-quarkus-test-framework'
-  integrationTestImplementation "org.testcontainers:kafka:1.15.2"
+  integrationTestImplementation "org.testcontainers:kafka:1.17.5"
 
   // Integration Testing  
   integrationTestImplementation 'io.quarkus:quarkus-junit5'
