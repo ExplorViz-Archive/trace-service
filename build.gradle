@@ -52,10 +52,10 @@ configurations {
 sourceSets.main.java.srcDirs = ['build/classes/java/quarkus-generated-sources/avdl', 'src/main/java', 'build/generated/sources/annotationProcessor/java/main']
 
 // Fix: com.datastax.oss:* uses old, mandatory Groovy version
-configurations.all {
-  resolutionStrategy.force group: 'org.codehaus.groovy', name: 'groovy-json', version: '2.5.7'
-  resolutionStrategy.force group: 'org.codehaus.groovy', name: 'groovy', version: '2.5.7'
-}
+//configurations.all {
+//  resolutionStrategy.force group: 'org.codehaus.groovy', name: 'groovy-json', version: '2.5.7'
+//  resolutionStrategy.force group: 'org.codehaus.groovy', name: 'groovy', version: '2.5.7'
+//}
 
 dependencies {  
   implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
@@ -70,33 +70,30 @@ dependencies {
   // Cassandra
   annotationProcessor group: 'com.datastax.oss', name: 'java-driver-mapper-processor', version: '4.10.0'
   implementation 'com.datastax.oss:java-driver-mapper-runtime'
-  
-  // Remove version when 1.1.2 is included in Quarkus Platform, should be in 2.8.x.FINAL
-  // Bug https://github.com/datastax/cassandra-quarkus/issues/203
-  // Universe BOM https://mvnrepository.com/artifact/io.quarkus/quarkus-universe-bom
-  implementation('com.datastax.oss.quarkus:cassandra-quarkus-client:1.0.2') {
-        force = true
-  }
+  implementation('com.datastax.oss.quarkus:cassandra-quarkus-client')
 
   // Kafka
   implementation 'io.quarkus:quarkus-kafka-streams'
   implementation 'io.quarkus:quarkus-resteasy'
   implementation 'io.quarkus:quarkus-resteasy-jackson'
-  implementation group: 'io.confluent', name: 'kafka-avro-serializer', version: '7.0.1'
-  implementation group: 'io.confluent', name: 'kafka-streams-avro-serde', version: '7.0.1'
-  implementation 'io.quarkus:quarkus-avro'
+  implementation 'io.quarkus:quarkus-confluent-registry-avro'
+  implementation group: 'io.confluent', name: 'kafka-avro-serializer', version: '7.2.1'
+  implementation group: 'io.confluent', name: 'kafka-streams-avro-serde', version: '7.2.1'
   implementation 'io.quarkus:quarkus-smallrye-reactive-messaging-kafka'
+  
+  // Utility
+  implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
   
   // Unit Testing  
   testImplementation 'io.quarkus:quarkus-junit5'
   testImplementation 'io.quarkus:quarkus-junit5-mockito'
 
-  testImplementation group: 'org.apache.kafka', name: 'kafka-streams-test-utils', version: '3.1.0'
+  testImplementation group: 'org.apache.kafka', name: 'kafka-streams-test-utils', version: '3.3.1'
   
   // Integration / Api Tests
   integrationTestImplementation 'io.rest-assured:rest-assured'
   integrationTestImplementation 'com.datastax.oss.quarkus:cassandra-quarkus-test-framework'
-  integrationTestImplementation "org.testcontainers:kafka:1.15.2"
+  integrationTestImplementation "org.testcontainers:kafka:1.17.5"
 
   // Integration Testing  
   integrationTestImplementation 'io.quarkus:quarkus-junit5'
