@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.Properties;
 import javax.inject.Inject;
 import net.explorviz.avro.SpanDynamic;
-import net.explorviz.avro.Timestamp;
 import net.explorviz.avro.Trace;
 import net.explorviz.trace.service.TimestampHelper;
 import net.explorviz.trace.service.TraceRepository;
@@ -68,7 +67,6 @@ class TopologyTest {
     config.put(StreamsConfig.DEFAULT_TIMESTAMP_EXTRACTOR_CLASS_CONFIG,
         SpanTimestampKafkaExtractor.class);
 
-
     this.testDriver = new TopologyTestDriver(this.topology, config);
 
     this.traceRepository = Mockito.mock(TraceRepository.class);
@@ -105,7 +103,7 @@ class TopologyTest {
     final SpanDynamic testSpan = TraceHelper.randomSpan();
 
     this.inputTopic.pipeInput(testSpan.getTraceId(), testSpan);
-    this.forceSuppression(testSpan.getStartTime());
+    this.forceSuppression(testSpan.getStartTimeEpochMilli());
 
     Assertions.assertEquals(1, mockSpanDB.size());
     Assertions.assertEquals(testSpan, mockSpanDB.get(0).getSpanList().get(0));
@@ -125,10 +123,10 @@ class TopologyTest {
     final int spansPerTrace = 20;
 
     final Trace testTrace = TraceHelper.randomTrace(spansPerTrace);
-    Timestamp t = testTrace.getStartTime();
+    long t = testTrace.getStartTimeEpochMilli();
     for (final SpanDynamic s : testTrace.getSpanList()) {
-      t = Timestamp.newBuilder(t).setNanoAdjust(t.getNanoAdjust() + 1).build();
-      s.setStartTime(t);
+      t += 1;
+      s.setStartTimeEpochMilli(t);
       this.inputTopic.pipeInput(s.getTraceId(), s);
     }
     this.forceSuppression(t);
@@ -154,14 +152,14 @@ class TopologyTest {
 
     // Create multiple traces that happen in parallel
     final List<KeyValue<String, SpanDynamic>> traces = new ArrayList<>();
-    final Timestamp baseTime = TraceHelper.randomTrace(1).getStartTime();
+    final long baseTime = TraceHelper.randomTrace(1).getStartTimeEpochMilli();
     for (int i = 0; i < traceAmount; i++) {
       final Trace testTrace = TraceHelper.randomTrace(spansPerTrace);
-      Timestamp t = Timestamp.newBuilder(baseTime).build();
+      long t = baseTime;
       for (final SpanDynamic s : testTrace.getSpanList()) {
         // Keep spans in one window
-        t = Timestamp.newBuilder(t).setNanoAdjust(t.getNanoAdjust() + 2).build();
-        s.setStartTime(t);
+        t += 2;
+        s.setStartTimeEpochMilli(t);
         traces.add(new KeyValue<>(s.getTraceId(), s));
       }
     }
@@ -200,17 +198,16 @@ class TopologyTest {
     final int spansPerTrace = 20;
 
     final Trace testTrace = TraceHelper.randomTrace(spansPerTrace);
-    Timestamp ts = TraceHelper.randomTrace(1).getStartTime();
+    long ts = TraceHelper.randomTrace(1).getStartTimeEpochMilli();
     for (int i = 0; i < testTrace.getSpanList().size(); i++) {
       final SpanDynamic s = testTrace.getSpanList().get(i);
       if (i < testTrace.getSpanList().size() - 1) {
-        ts = Timestamp.newBuilder(ts).setNanoAdjust(ts.getNanoAdjust() + 1).build();
+        ts += 1;
       } else {
         // Last span arrives out of window
-        final long secs = Duration.ofMillis(this.windowSizeInMs).toSeconds();
-        ts = Timestamp.newBuilder(ts).setSeconds(ts.getSeconds() + secs).build();
+        ts += this.windowSizeInMs;
       }
-      s.setStartTime(ts);
+      s.setStartTimeEpochMilli(ts);
       this.inputTopic.pipeInput(s.getTraceId(), s);
     }
 
@@ -227,15 +224,14 @@ class TopologyTest {
    * Forces the suppression to emit results by sending a dummy event with a timestamp larger than
    * the suppression time.
    */
-  private void forceSuppression(final Timestamp lastTimestamp) {
+  private void forceSuppression(final long lastTimestamp) {
     final Duration secs = Duration.ofMillis(this.windowSizeInMs).plusMillis(this.graceSizeInMs);
     final SpanDynamic dummy = TraceHelper.randomSpan();
 
     final Instant ts = TimestampHelper.toInstant(lastTimestamp).plus(secs);
-    dummy.setStartTime(TimestampHelper.toTimestamp(ts));
+    dummy.setStartTimeEpochMilli(TimestampHelper.toTimestamp(ts));
     this.inputTopic.pipeInput(dummy.getTraceId(), dummy);
   }
-
 
 
 }

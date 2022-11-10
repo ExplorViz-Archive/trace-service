@@ -3,6 +3,7 @@ package net.explorviz.trace.service;
 import static net.explorviz.trace.service.TimestampHelper.durationMs;
 import static net.explorviz.trace.service.TimestampHelper.isAfter;
 import static net.explorviz.trace.service.TimestampHelper.isBefore;
+
 import java.util.LinkedList;
 import net.explorviz.avro.SpanDynamic;
 import net.explorviz.avro.Trace;
@@ -11,7 +12,6 @@ import net.explorviz.avro.Trace;
  * Contains methods that help to aggregate multiple span into a trace as they come in.
  */
 public class TraceAggregator {
-
 
 
   private Trace initTrace(final Trace freshTrace, final SpanDynamic firstSpan) {
@@ -24,10 +24,11 @@ public class TraceAggregator {
     freshTrace.getSpanList().add(firstSpan);
 
     // Set start and end time to equal to the times of the only span
-    freshTrace.setStartTime(firstSpan.getStartTime());
-    freshTrace.setEndTime(firstSpan.getEndTime());
+    freshTrace.setStartTimeEpochMilli(firstSpan.getStartTimeEpochMilli());
+    freshTrace.setEndTimeEpochMilli(firstSpan.getEndTimeEpochMilli());
 
-    freshTrace.setDuration(durationMs(firstSpan.getStartTime(), firstSpan.getEndTime()));
+    freshTrace.setDuration(
+        durationMs(firstSpan.getStartTimeEpochMilli(), firstSpan.getEndTimeEpochMilli()));
 
     freshTrace.setOverallRequestCount(1);
     freshTrace.setTraceCount(1);
@@ -46,7 +47,7 @@ public class TraceAggregator {
    * are ordered by their respective start times.
    *
    * @param aggregate the trace to add the span to
-   * @param newSpan the span to add to the trace
+   * @param newSpan   the span to add to the trace
    * @return the trace with the span included
    */
   public Trace aggregate(final Trace aggregate, final SpanDynamic newSpan) {
@@ -58,17 +59,16 @@ public class TraceAggregator {
     // Add the span to the trace
     aggregate.getSpanList().add(newSpan);
     // Depending on the position the span was inserted, the start or end time must be adjusted
-    if (isBefore(newSpan.getStartTime(), aggregate.getStartTime())) {
+    if (isBefore(newSpan.getStartTimeEpochMilli(), aggregate.getStartTimeEpochMilli())) {
       // Span is the current earliest in the trace
-      aggregate.setStartTime(newSpan.getStartTime());
-    } else if (isAfter(newSpan.getEndTime(), aggregate.getEndTime())) {
+      aggregate.setStartTimeEpochMilli(newSpan.getStartTimeEpochMilli());
+    } else if (isAfter(newSpan.getEndTimeEpochMilli(), aggregate.getEndTimeEpochMilli())) {
       // Span is the current latest in the trace
-      aggregate.setEndTime(newSpan.getEndTime());
+      aggregate.setEndTimeEpochMilli(newSpan.getEndTimeEpochMilli());
     }
 
     return aggregate;
   }
-
 
 
 }

@@ -25,7 +25,7 @@ public class SpanTimestampKafkaExtractor implements TimestampExtractor {
       // timestamp = Duration.ofNanos(span.getStartTime()).toMillis();
       // timestamp = Instant.ofEpochMilli(span.getStartTime()).toEpochMilli();
       return Instant
-          .ofEpochSecond(span.getStartTime().getSeconds(), span.getStartTime().getNanoAdjust())
+          .ofEpochMilli(span.getStartTimeEpochMilli())
           .toEpochMilli();
     }
 

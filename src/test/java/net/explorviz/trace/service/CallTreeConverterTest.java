@@ -1,6 +1,7 @@
 package net.explorviz.trace.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.ArrayList;
 import java.util.List;
 import net.explorviz.trace.persistence.dao.SpanDynamic;
@@ -18,8 +19,8 @@ public class CallTreeConverterTest {
     final Trace expected = new Trace();
     expected.setLandscapeToken(testObject.getLandscapeToken());
     expected.setTraceId(testObject.getTraceId());
-    expected.setStartTime(TimestampHelper.toInstant(testObject.getStartTime()).toEpochMilli());
-    expected.setEndTime(TimestampHelper.toInstant(testObject.getEndTime()).toEpochMilli());
+    expected.setStartTime(testObject.getStartTimeEpochMilli());
+    expected.setEndTime(testObject.getEndTimeEpochMilli());
     expected.setDuration(testObject.getDuration());
     expected.setOverallRequestCount(testObject.getOverallRequestCount());
     expected.setTraceCount(testObject.getTraceCount());
@@ -30,8 +31,8 @@ public class CallTreeConverterTest {
     expectedSpan.setSpanId(testObjectSpan.getSpanId());
     expectedSpan.setParentSpanId(testObjectSpan.getParentSpanId());
     expectedSpan
-        .setStartTime(TimestampHelper.toInstant(testObjectSpan.getStartTime()).toEpochMilli());
-    expectedSpan.setEndTime(TimestampHelper.toInstant(testObjectSpan.getEndTime()).toEpochMilli());
+        .setStartTime(testObjectSpan.getStartTimeEpochMilli());
+    expectedSpan.setEndTime(testObjectSpan.getEndTimeEpochMilli());
     expectedSpan.setHashCode(testObjectSpan.getHashCode());
 
     final List<SpanDynamic> expectedSpanList = new ArrayList<>();
@@ -52,8 +53,8 @@ public class CallTreeConverterTest {
     final Trace expected = new Trace();
     expected.setLandscapeToken(testObject.getLandscapeToken());
     expected.setTraceId(testObject.getTraceId());
-    expected.setStartTime(TimestampHelper.toInstant(testObject.getStartTime()).toEpochMilli());
-    expected.setEndTime(TimestampHelper.toInstant(testObject.getEndTime()).toEpochMilli());
+    expected.setStartTime(testObject.getStartTimeEpochMilli());
+    expected.setEndTime(testObject.getEndTimeEpochMilli());
     expected.setDuration(testObject.getDuration());
     expected.setOverallRequestCount(testObject.getOverallRequestCount());
     expected.setTraceCount(testObject.getTraceCount());
@@ -68,9 +69,9 @@ public class CallTreeConverterTest {
       expectedSpan.setSpanId(testObjectSpan.getSpanId());
       expectedSpan.setParentSpanId(testObjectSpan.getParentSpanId());
       expectedSpan
-          .setStartTime(TimestampHelper.toInstant(testObjectSpan.getStartTime()).toEpochMilli());
+          .setStartTime(testObjectSpan.getStartTimeEpochMilli());
       expectedSpan
-          .setEndTime(TimestampHelper.toInstant(testObjectSpan.getEndTime()).toEpochMilli());
+          .setEndTime(testObjectSpan.getEndTimeEpochMilli());
       expectedSpan.setHashCode(testObjectSpan.getHashCode());
 
       expectedSpanList.add(expectedSpan);
