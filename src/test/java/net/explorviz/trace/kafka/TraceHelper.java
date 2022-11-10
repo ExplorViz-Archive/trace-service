@@ -1,6 +1,5 @@
 package net.explorviz.trace.kafka;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import net.explorviz.avro.SpanDynamic;
@@ -39,7 +38,6 @@ public final class TraceHelper {
   public static SpanDynamic randomSpan(final String traceId, final String token) {
     final long maxSeconds = 1609459200;
     final long minSeconds = 1577836800;
-    final int maxNanos = Instant.MAX.getNano();
 
     return SpanDynamic.newBuilder()
         .setLandscapeToken(token)

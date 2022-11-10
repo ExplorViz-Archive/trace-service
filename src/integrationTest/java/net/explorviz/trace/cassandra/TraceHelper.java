@@ -1,6 +1,5 @@
 package net.explorviz.trace.cassandra;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import net.explorviz.avro.SpanDynamic;
@@ -54,8 +53,6 @@ public final class TraceHelper {
 
   public static SpanDynamic randomSpanFixedTimeInterval(final String traceId, final String token,
       final long fromSeconds, final long toSeconds) {
-
-    final int maxNanos = Instant.MAX.getNano();
 
     return SpanDynamic.newBuilder()
         .setLandscapeToken(token)
