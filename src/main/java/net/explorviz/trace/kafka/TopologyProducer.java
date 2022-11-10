@@ -114,7 +114,7 @@ public class TopologyProducer {
         reduced = this.loopReducer.reduce(reduced);
         final Trace reducedTrace = CallTreeConverter.toTrace(reduced);
         if (LOGGER.isTraceEnabled()) {
-          LOGGER.trace("Reduced {} spans", tracesOriginal - reducedTrace.getSpanList().size());
+          LOGGER.trace("Reduced trace with {} original spans to {} spans.", tracesOriginal, reducedTrace.getSpanList().size());
         }
         return reducedTrace;
       } catch (final IllegalArgumentException e) {
