@@ -36,9 +36,10 @@ After 10s the window closes, all related spans are aggregated into a trace objec
 Stored traces can be retrieved by clients. 
 For that purpose, client have to specify the landscape token, and the time period for which traces should be retrieved. 
 
-## Instructions
+## Prerequisites
 
-Before running this service, make sure the ExplorViz software stack is up and running, see [ExplorViz/deployment](https://git.se.informatik.uni-kiel.de/ExplorViz/code/deployment).
+- Java 11 or higher
+- Make sure to run the [ExplorViz software stack](https://git.se.informatik.uni-kiel.de/ExplorViz/code/deployment) before starting the service.
 
 ### Running the application in dev mode
 
