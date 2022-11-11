@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import net.explorviz.avro.Timestamp;
 import org.junit.jupiter.api.Test;
 
 class TimestampHelperTest {
@@ -15,8 +14,8 @@ class TimestampHelperTest {
   void order() {
     final Instant now = Instant.now();
 
-    final Timestamp plus5 = TimestampHelper.toTimestamp(now.plus(5, ChronoUnit.SECONDS));
-    final Timestamp minus5 = TimestampHelper.toTimestamp(now.minus(5, ChronoUnit.SECONDS));
+    final long plus5 = TimestampHelper.toTimestamp(now.plus(5, ChronoUnit.SECONDS));
+    final long minus5 = TimestampHelper.toTimestamp(now.minus(5, ChronoUnit.SECONDS));
 
 
     // Order
@@ -40,8 +39,8 @@ class TimestampHelperTest {
     final long durationMs = 123547;
     final Duration d = Duration.of(durationMs, ChronoUnit.MILLIS);
 
-    final Timestamp start = TimestampHelper.toTimestamp(now);
-    final Timestamp end = TimestampHelper.toTimestamp(now.plus(d));
+    final long start = TimestampHelper.toTimestamp(now);
+    final long end = TimestampHelper.toTimestamp(now.plus(d));
 
     assertEquals(durationMs, TimestampHelper.durationMs(start, end));
     assertEquals(-durationMs, TimestampHelper.durationMs(end, start));
@@ -50,8 +49,8 @@ class TimestampHelperTest {
 
   @Test
   void conversion() {
-    final Instant now = Instant.now();
-    final Timestamp ts = TimestampHelper.toTimestamp(now);
+    final Instant now = Instant.ofEpochMilli(Instant.now().toEpochMilli());
+    final long ts = TimestampHelper.toTimestamp(now);
     final Instant i = TimestampHelper.toInstant(ts);
     assertEquals(now, i);
   }

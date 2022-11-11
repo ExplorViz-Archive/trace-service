@@ -1,10 +1,8 @@
 package net.explorviz.trace.cassandra;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import net.explorviz.avro.SpanDynamic;
-import net.explorviz.avro.Timestamp;
 import net.explorviz.avro.Trace;
 import net.explorviz.trace.service.TimestampHelper;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -41,14 +39,10 @@ public final class TraceHelper {
     final long maxSeconds = 1609459200;
     final long minSeconds = 1577836800;
 
-    final int maxNanos = Instant.MAX.getNano();
-
     return SpanDynamic.newBuilder()
         .setLandscapeToken(token)
-        .setStartTime(new Timestamp(RandomUtils.nextLong(minSeconds, maxSeconds),
-            RandomUtils.nextInt(0, maxNanos)))
-        .setEndTime(new Timestamp(RandomUtils.nextLong(minSeconds, maxSeconds),
-            RandomUtils.nextInt(0, maxNanos)))
+        .setStartTimeEpochMilli(RandomUtils.nextLong(minSeconds, maxSeconds))
+        .setEndTimeEpochMilli(RandomUtils.nextLong(minSeconds, maxSeconds))
         .setTraceId(traceId)
         .setParentSpanId(RandomStringUtils.random(8, true, true))
         .setSpanId(RandomStringUtils.random(8, true, true))
@@ -60,14 +54,10 @@ public final class TraceHelper {
   public static SpanDynamic randomSpanFixedTimeInterval(final String traceId, final String token,
       final long fromSeconds, final long toSeconds) {
 
-    final int maxNanos = Instant.MAX.getNano();
-
     return SpanDynamic.newBuilder()
         .setLandscapeToken(token)
-        .setStartTime(new Timestamp(fromSeconds,
-            RandomUtils.nextInt(0, maxNanos)))
-        .setEndTime(new Timestamp(toSeconds,
-            RandomUtils.nextInt(0, maxNanos)))
+        .setStartTimeEpochMilli(fromSeconds)
+        .setEndTimeEpochMilli(toSeconds)
         .setTraceId(traceId)
         .setParentSpanId(RandomStringUtils.random(8, true, true))
         .setSpanId(RandomStringUtils.random(8, true, true))
@@ -104,16 +94,16 @@ public final class TraceHelper {
 
     final String traceId = RandomStringUtils.random(6, true, true);
 
-    Timestamp start = null;
-    Timestamp end = null;
+    long start = 0L;
+    long end = 0L;
     final List<SpanDynamic> spans = new ArrayList<>();
     for (int i = 0; i < spanAmount; i++) {
       final SpanDynamic s = randomSpan(traceId, landscapeToken);
-      if (start == null || TimestampHelper.isBefore(s.getStartTime(), start)) {
-        start = s.getStartTime();
+      if (start == 0L || TimestampHelper.isBefore(s.getStartTimeEpochMilli(), start)) {
+        start = s.getStartTimeEpochMilli();
       }
-      if (end == null || TimestampHelper.isAfter(s.getEndTime(), end)) {
-        end = s.getEndTime();
+      if (end == 0L || TimestampHelper.isAfter(s.getEndTimeEpochMilli(), end)) {
+        end = s.getEndTimeEpochMilli();
       }
       spans.add(s);
     }
@@ -121,8 +111,8 @@ public final class TraceHelper {
     return Trace.newBuilder()
         .setLandscapeToken(landscapeToken)
         .setTraceId(traceId)
-        .setStartTime(start)
-        .setEndTime(end)
+        .setStartTimeEpochMilli(start)
+        .setEndTimeEpochMilli(end)
         .setDuration(TimestampHelper.durationMs(start, end))
         .setSpanList(spans)
         .setTraceCount(1)
@@ -135,17 +125,17 @@ public final class TraceHelper {
 
     final String traceId = RandomStringUtils.random(6, true, true);
 
-    Timestamp start = null;
-    Timestamp end = null;
+    long start = 0L;
+    long end = 0L;
     final List<SpanDynamic> spans = new ArrayList<>();
     for (int i = 0; i < spanAmount; i++) {
       final SpanDynamic s =
           randomSpanFixedTimeInterval(traceId, landscapeToken, fromSeconds, toSeconds);
-      if (start == null || TimestampHelper.isBefore(s.getStartTime(), start)) {
-        start = s.getStartTime();
+      if (start == 0L || TimestampHelper.isBefore(s.getStartTimeEpochMilli(), start)) {
+        start = s.getStartTimeEpochMilli();
       }
-      if (end == null || TimestampHelper.isAfter(s.getEndTime(), end)) {
-        end = s.getEndTime();
+      if (end == 0L || TimestampHelper.isAfter(s.getEndTimeEpochMilli(), end)) {
+        end = s.getEndTimeEpochMilli();
       }
       spans.add(s);
     }
@@ -153,8 +143,8 @@ public final class TraceHelper {
     return Trace.newBuilder()
         .setLandscapeToken(landscapeToken)
         .setTraceId(traceId)
-        .setStartTime(start)
-        .setEndTime(end)
+        .setStartTimeEpochMilli(start)
+        .setEndTimeEpochMilli(end)
         .setDuration(TimestampHelper.durationMs(start, end))
         .setSpanList(spans)
         .setTraceCount(1)

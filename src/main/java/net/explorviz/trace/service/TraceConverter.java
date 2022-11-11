@@ -21,8 +21,8 @@ public final class TraceConverter {
 
     for (final SpanDynamic span : t.getSpanList()) {
 
-      final long startTime = TimestampHelper.toInstant(span.getStartTime()).toEpochMilli();
-      final long endTime = TimestampHelper.toInstant(span.getEndTime()).toEpochMilli();
+      final long startTime = span.getStartTimeEpochMilli();
+      final long endTime = span.getEndTimeEpochMilli();
 
       final net.explorviz.trace.persistence.dao.SpanDynamic spanDynamicEntity =
           new net.explorviz.trace.persistence.dao.SpanDynamic(span.getLandscapeToken(),
@@ -34,8 +34,8 @@ public final class TraceConverter {
 
     // Build Dao Trace
 
-    final long startTime = TimestampHelper.toInstant(t.getStartTime()).toEpochMilli();
-    final long endTime = TimestampHelper.toInstant(t.getEndTime()).toEpochMilli();
+    final long startTime = t.getStartTimeEpochMilli();
+    final long endTime = t.getEndTimeEpochMilli();
 
     return new Trace(t.getLandscapeToken(), t.getTraceId(),
         startTime, endTime, t.getDuration(), t.getOverallRequestCount(),

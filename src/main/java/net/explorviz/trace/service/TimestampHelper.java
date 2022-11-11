@@ -2,11 +2,10 @@ package net.explorviz.trace.service;
 
 import java.time.Duration;
 import java.time.Instant;
-import net.explorviz.avro.Timestamp;
 
 
 /**
- * Helper class for {@link Timestamp}s.
+ * Helper class for timestamps.
  */
 public final class TimestampHelper {
 
@@ -15,12 +14,12 @@ public final class TimestampHelper {
   /**
    * Checks if the first timestamp is before than the second or the same.
    *
-   * @param one the first timestamp
-   * @param two the second timestamp
+   * @param epochMilliOne the first timestamp
+   * @param epochMilliTwo the second timestamp
    * @return true iff first <= second
    */
-  public static boolean isBeforeOrEqual(final Timestamp one, final Timestamp two) {
-    return isBefore(one, two) || isEqual(one, two);
+  public static boolean isBeforeOrEqual(final long epochMilliOne, final long epochMilliTwo) {
+    return isBefore(epochMilliOne, epochMilliTwo) || isEqual(epochMilliOne, epochMilliTwo);
   }
 
   /**
@@ -30,7 +29,7 @@ public final class TimestampHelper {
    * @param two the second timestamp
    * @return true iff first < second
    */
-  public static boolean isBefore(final Timestamp one, final Timestamp two) {
+  public static boolean isBefore(final long one, final long two) {
     final Instant f = toInstant(one);
     final Instant s = toInstant(two);
     return f.isBefore(s);
@@ -43,7 +42,7 @@ public final class TimestampHelper {
    * @param two the second timestamp
    * @return true iff first > second
    */
-  public static boolean isAfter(final Timestamp one, final Timestamp two) {
+  public static boolean isAfter(final long one, final long two) {
     final Instant f = toInstant(one);
     final Instant s = toInstant(two);
     return f.isAfter(s);
@@ -56,11 +55,11 @@ public final class TimestampHelper {
    * @param two the second timestamp
    * @return true iff first >= second
    */
-  public static boolean isAfterOrEqual(final Timestamp one, final Timestamp two) {
+  public static boolean isAfterOrEqual(final long one, final long two) {
     return isAfter(one, two) || isEqual(one, two);
   }
 
-  public static boolean isEqual(final Timestamp one, final Timestamp two) {
+  public static boolean isEqual(final long one, final long two) {
     final Instant f = toInstant(one);
     final Instant s = toInstant(two);
     return f.equals(s);
@@ -73,7 +72,7 @@ public final class TimestampHelper {
    * @param t2 the second timestamp
    * @return the duration in milliseconds
    */
-  public static long durationMs(final Timestamp t1, final Timestamp t2) {
+  public static long durationMs(final long t1, final long t2) {
     final Instant s = toInstant(t1);
     final Instant e = toInstant(t2);
     return Duration.between(s, e).toMillis();
@@ -85,18 +84,18 @@ public final class TimestampHelper {
    * @param t the timestamp
    * @return an instant representing the exact same time as the timestamp
    */
-  public static Instant toInstant(final Timestamp t) {
-    return Instant.ofEpochSecond(t.getSeconds(), t.getNanoAdjust());
+  public static Instant toInstant(final long t) {
+    return Instant.ofEpochMilli(t);
   }
 
   /**
-   * Converts an instant to a timestamp. Converse of {@link #toInstant(Timestamp)}.
+   * Converts an instant to a timestamp.
    *
    * @param i the instant
    * @return a timestamp representing the exact same time as the instant
    */
-  public static Timestamp toTimestamp(final Instant i) {
-    return new Timestamp(i.getEpochSecond(), i.getNano());
+  public static long toTimestamp(final Instant i) {
+    return i.toEpochMilli();
   }
 
 }

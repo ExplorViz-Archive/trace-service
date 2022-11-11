@@ -1,7 +1,6 @@
 package net.explorviz.trace.kafka;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
-import java.time.Instant;
 import net.explorviz.avro.SpanDynamic;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.streams.processor.TimestampExtractor;
@@ -24,9 +23,7 @@ public class SpanTimestampKafkaExtractor implements TimestampExtractor {
     if (span != null) {
       // timestamp = Duration.ofNanos(span.getStartTime()).toMillis();
       // timestamp = Instant.ofEpochMilli(span.getStartTime()).toEpochMilli();
-      return Instant
-          .ofEpochSecond(span.getStartTime().getSeconds(), span.getStartTime().getNanoAdjust())
-          .toEpochMilli();
+      return span.getStartTimeEpochMilli();
     }
 
     // Invalid timestamp! Attempt to estimate a new timestamp,
