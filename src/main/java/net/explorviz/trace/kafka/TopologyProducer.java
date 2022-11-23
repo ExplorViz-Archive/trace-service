@@ -135,7 +135,12 @@ public class TopologyProducer {
       // DEBUG Total traces for window
       this.spanReducedTracesCount.incrementAndGet();
 
-      this.traceRepository.insert(t).await().indefinitely();
+      this.traceRepository.insert(t).subscribe().with(unused -> {
+      }, failure -> {
+          if (LOGGER.isErrorEnabled()) {
+            LOGGER.error("Could not persist trace", failure);
+          }
+        });
     });
 
     // END Span conversion
