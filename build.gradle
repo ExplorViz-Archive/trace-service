@@ -125,6 +125,12 @@ java {
   targetCompatibility = JavaVersion.VERSION_11
 }
 
+tasks.withType(JavaCompile) {
+  // Turn on all javac warnings instead of classfile and processing, which produces many false-positives about
+  // annotations and cast which is triggered by the auto-generated Dao implementations
+  options.compilerArgs << "-Xlint:all" << "-Xlint:-classfile" << "-Xlint:-processing" << "-Xlint:-cast"
+}
+
 test {
   systemProperty "java.util.logging.manager", "org.jboss.logmanager.LogManager"
 }
