@@ -36,13 +36,13 @@ public final class TraceHelper {
    * @return a randomly generated span
    */
   public static SpanDynamic randomSpan(final String traceId, final String token) {
-    final long maxSeconds = 1609459200;
-    final long minSeconds = 1577836800;
+    final long maxSecondsInEpochMilli = 1609459200000L;
+    final long minSecondsInEpochMilli = 1577836800000L;
 
     return SpanDynamic.newBuilder()
         .setLandscapeToken(token)
-        .setStartTimeEpochMilli(RandomUtils.nextLong(minSeconds, maxSeconds))
-        .setEndTimeEpochMilli(RandomUtils.nextLong(minSeconds, maxSeconds))
+        .setStartTimeEpochMilli(RandomUtils.nextLong(minSecondsInEpochMilli, maxSecondsInEpochMilli))
+        .setEndTimeEpochMilli(RandomUtils.nextLong(minSecondsInEpochMilli, maxSecondsInEpochMilli))
         .setTraceId(traceId)
         .setParentSpanId(RandomStringUtils.random(8, true, true))
         .setSpanId(RandomStringUtils.random(8, true, true))
@@ -52,12 +52,12 @@ public final class TraceHelper {
   }
 
   public static SpanDynamic randomSpanFixedTimeInterval(final String traceId, final String token,
-      final long fromSeconds, final long toSeconds) {
+      final long fromEpochMilli, final long toEpochMilli) {
 
     return SpanDynamic.newBuilder()
         .setLandscapeToken(token)
-        .setStartTimeEpochMilli(fromSeconds)
-        .setEndTimeEpochMilli(toSeconds)
+        .setStartTimeEpochMilli(fromEpochMilli)
+        .setEndTimeEpochMilli(toEpochMilli)
         .setTraceId(traceId)
         .setParentSpanId(RandomStringUtils.random(8, true, true))
         .setSpanId(RandomStringUtils.random(8, true, true))
@@ -121,7 +121,7 @@ public final class TraceHelper {
   }
 
   public static Trace randomTrace(final int spanAmount, final String landscapeToken,
-      final long fromSeconds, final long toSeconds) {
+      final long fromEpochMilli, final long toEpochMilli) {
 
     final String traceId = RandomStringUtils.random(6, true, true);
 
@@ -130,7 +130,7 @@ public final class TraceHelper {
     final List<SpanDynamic> spans = new ArrayList<>();
     for (int i = 0; i < spanAmount; i++) {
       final SpanDynamic s =
-          randomSpanFixedTimeInterval(traceId, landscapeToken, fromSeconds, toSeconds);
+          randomSpanFixedTimeInterval(traceId, landscapeToken, fromEpochMilli, toEpochMilli);
       if (start == 0L || TimestampHelper.isBefore(s.getStartTimeEpochMilli(), start)) {
         start = s.getStartTimeEpochMilli();
       }

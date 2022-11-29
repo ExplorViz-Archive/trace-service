@@ -65,8 +65,9 @@ dependencies {
    
   // Base    
   implementation 'io.quarkus:quarkus-scheduler'
-  implementation 'io.quarkus:quarkus-resteasy-mutiny'
-  
+  implementation 'io.quarkus:quarkus-resteasy-reactive'
+  implementation 'io.quarkus:quarkus-resteasy-reactive-jackson'
+
   // Cassandra
   annotationProcessor group: 'com.datastax.oss', name: 'java-driver-mapper-processor', version: '4.15.0'
   implementation group: 'com.datastax.oss', name: 'java-driver-mapper-runtime', version: '4.15.0'
@@ -79,8 +80,7 @@ dependencies {
 
   // Kafka
   implementation 'io.quarkus:quarkus-kafka-streams'
-  implementation 'io.quarkus:quarkus-resteasy'
-  implementation 'io.quarkus:quarkus-resteasy-jackson'
+
   implementation 'io.quarkus:quarkus-confluent-registry-avro'
   implementation group: 'io.confluent', name: 'kafka-avro-serializer', version: '7.2.1'
   implementation group: 'io.confluent', name: 'kafka-streams-avro-serde', version: '7.2.1'
@@ -96,8 +96,11 @@ dependencies {
   testImplementation group: 'org.apache.kafka', name: 'kafka-streams-test-utils', version: '3.3.1'
   
   // Integration / Api Tests
+  testImplementation 'io.rest-assured:rest-assured'
   integrationTestImplementation 'io.rest-assured:rest-assured'
+  testImplementation 'com.datastax.oss.quarkus:cassandra-quarkus-test-framework'
   integrationTestImplementation 'com.datastax.oss.quarkus:cassandra-quarkus-test-framework'
+  testImplementation "org.testcontainers:kafka:1.17.5"
   integrationTestImplementation "org.testcontainers:kafka:1.17.5"
 
   // Integration Testing  

@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 @QuarkusTest
 @QuarkusTestResource(KafkaTestResource.class)
 @QuarkusTestResource(CassandraTestResource.class)
-@TestProfile(CassandraTestProfile.class)
+//@TestProfile(CassandraTestProfile.class)
 public class TraceResourceIt {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TraceResourceIt.class);
@@ -129,11 +129,11 @@ public class TraceResourceIt {
 
     final String landscapeToken = RandomStringUtils.random(32, true, true);
 
-    final long fromSeconds1 = 1605700800L;
-    final long toSeconds1 = 1605700810L;
+    final long fromSeconds1 = 1605700800000L;
+    final long toSeconds1 = 1605700810000L;
 
-    final long fromSeconds2 = 1605700811L;
-    final long toSeconds2 = 1605700821L;
+    final long fromSeconds2 = 1605700811000L;
+    final long toSeconds2 = 1605700821000L;
 
     final Trace expected1 = TraceConverter
         .convertTraceToDao(TraceHelper.randomTrace(5, landscapeToken, fromSeconds1, toSeconds1));
@@ -147,11 +147,10 @@ public class TraceResourceIt {
         .convertTraceToDao(TraceHelper.randomTrace(5, landscapeToken, fromSeconds2, toSeconds2));
 
     long filteringKey =
-        expected1.getStartTime() <= expected2.getStartTime() ? expected1.getStartTime()
-            : expected2.getStartTime();
+        Math.min(expected1.getStartTime(), expected2.getStartTime());
 
     filteringKey =
-        filteringKey <= expected3.getStartTime() ? filteringKey : expected3.getStartTime();
+        Math.min(filteringKey, expected3.getStartTime());
 
     final List<Trace> expectedList = new ArrayList<>();
     expectedList.add(expected1);
@@ -168,7 +167,7 @@ public class TraceResourceIt {
         this.repository.getByStartTimeAndEndTime(landscapeToken, filteringKey, filteringKey + 1000)
             .collect().asList().await().indefinitely();
 
-    Assertions.assertTrue(expectedList.size() == actualTraceList.size());
+    Assertions.assertEquals(expectedList.size(), actualTraceList.size());
 
     Assertions.assertTrue(actualTraceList.contains(expected1));
     Assertions.assertTrue(actualTraceList.contains(expected2));
@@ -180,8 +179,8 @@ public class TraceResourceIt {
 
     final String landscapeToken = RandomStringUtils.random(32, true, true);
 
-    final long fromSeconds1 = 1605700800L;
-    final long toSeconds1 = 1605700810L;
+    final long fromSeconds1 = 1605700800000L;
+    final long toSeconds1 = 1605700810000L;
 
     final Trace expected1 = TraceConverter
         .convertTraceToDao(TraceHelper.randomTrace(5, landscapeToken, fromSeconds1, toSeconds1));
