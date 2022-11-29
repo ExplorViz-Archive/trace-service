@@ -3,6 +3,7 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=intellij,eclipse,java,gradle,macos,windows,linux
 
 target
+.idea
 
 ### Eclipse ###
 .metadata
