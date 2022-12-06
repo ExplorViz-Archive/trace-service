@@ -13,6 +13,8 @@ import org.apache.kafka.streams.errors.ProductionExceptionHandler;
  */
 public class IgnoreRecordTooLargeHandler implements ProductionExceptionHandler {
 
+  // TODO how to get MicroMeterRegistry when there is no DI context?
+
   @Override
   public void configure(final Map<String, ?> configs) {
     // nothing to do
