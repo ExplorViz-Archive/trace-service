@@ -46,6 +46,9 @@ public class TopologyProducer {
   @ConfigProperty(name = "explorviz.kafka-streams.window.grace")
   /* default */ long graceSizeInMs; // NOCS
 
+  @ConfigProperty(name = "explorviz.kafka-streams.discard")
+  /* default */ boolean discard; // NOCS
+
   @Inject
   /* default */ SpecificAvroSerde<SpanDynamic> dynamicAvroSerde; // NOCS
 
@@ -80,6 +83,10 @@ public class TopologyProducer {
     spanStream.foreach((key, value) -> {
       this.lastReceivedTotalSpans.incrementAndGet();
     });
+
+    if (discard) {
+      return builder.build();
+    }
 
     final TimeWindows traceWindow = TimeWindows.ofSizeAndGrace(
         Duration.ofMillis(this.windowSizeInMs), Duration.ofMillis(this.graceSizeInMs));
@@ -154,10 +161,14 @@ public class TopologyProducer {
     final int reconstructedTraces = this.reconstructedTracesCount.getAndSet(0);
     final int spanReducedTraces = this.spanReducedTracesCount.getAndSet(0);
     if (LOGGER.isDebugEnabled()) {
-      LOGGER.debug(
-          "Received {} spans: {} trace reconstructed in"
-              + " {} time window, the Spans of {} traces have been reduced.",
-          totalSpans, reconstructedTraces, this.windowSizeInMs, spanReducedTraces);
+      if (discard) {
+        LOGGER.debug("Received and discarded {} spans.", totalSpans);
+      } else {
+        LOGGER.debug(
+            "Received {} spans: {} trace reconstructed in"
+                + " {} time window, the Spans of {} traces have been reduced.",
+            totalSpans, reconstructedTraces, this.windowSizeInMs, spanReducedTraces);
+      }
     }
   }
 
