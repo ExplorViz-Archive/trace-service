@@ -1,5 +1,6 @@
 package net.explorviz.trace.kafka;
 
+import io.confluent.kafka.schemaregistry.avro.AvroSchema;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.rest.exceptions.RestClientException;
 import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig;
@@ -30,7 +31,7 @@ public class MockSerdeDynamicProducer {
   public SpecificAvroSerde<SpanDynamic> produceMockSpecificAvroSerde()
       throws IOException, RestClientException {
 
-    this.registry.register(this.inTopicStructure + "-value", SpanDynamic.SCHEMA$);
+    this.registry.register(this.inTopicStructure + "-value", new AvroSchema(SpanDynamic.SCHEMA$));
 
     final SpecificAvroSerde<SpanDynamic> valueSerde = new SpecificAvroSerde<>(this.registry);
     valueSerde.configure(

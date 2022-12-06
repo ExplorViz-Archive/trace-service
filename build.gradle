@@ -5,7 +5,7 @@ plugins {
   id 'eclipse'
 }
 
-apply from: 'buildscripts/code-analysis.gradle'
+apply from: 'code-analysis/code-analysis.gradle'
 
 repositories {
   mavenLocal()
@@ -123,6 +123,12 @@ compileTestJava {
 java {
   sourceCompatibility = JavaVersion.VERSION_11
   targetCompatibility = JavaVersion.VERSION_11
+}
+
+tasks.withType(JavaCompile) {
+  // Turn on all javac warnings instead of classfile and processing, which produces many false-positives about
+  // annotations and cast which is triggered by the auto-generated Dao implementations
+  options.compilerArgs << "-Xlint:all" << "-Xlint:-classfile" << "-Xlint:-processing" << "-Xlint:-cast"
 }
 
 test {
