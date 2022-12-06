@@ -5,7 +5,7 @@ plugins {
   id 'eclipse'
 }
 
-apply from: 'buildscripts/code-analysis.gradle'
+apply from: 'code-analysis/code-analysis.gradle'
 
 repositories {
   mavenLocal()
