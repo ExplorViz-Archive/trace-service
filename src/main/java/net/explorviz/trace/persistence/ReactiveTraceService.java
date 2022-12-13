@@ -4,8 +4,8 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import net.explorviz.trace.persistence.dao.Trace;
 import net.explorviz.trace.persistence.dao.ReactiveTraceDao;
+import net.explorviz.trace.persistence.dao.Trace;
 
 /**
  * Business layer service to store/load {@link Trace} from the Cassandra database.
@@ -39,6 +39,12 @@ public class ReactiveTraceService {
 
   public Multi<Trace> getByTraceId(final String landscapeToken, final String traceId) {
     return this.traceDaoReactive.getByTraceId(landscapeToken, traceId);
+  }
+
+  public Multi<Trace> cloneAllAsync(final String landscapeToken,
+      final String clonedLandscapeToken) {
+    return this.getAllAsync(clonedLandscapeToken).invoke(x -> x.setLandscapeToken(landscapeToken))
+        .call(this::insert);
   }
 
 }

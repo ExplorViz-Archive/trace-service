@@ -14,9 +14,9 @@ import java.util.Map;
 import java.util.Properties;
 import javax.inject.Inject;
 import net.explorviz.avro.SpanDynamic;
-import net.explorviz.avro.Trace;
+import net.explorviz.trace.persistence.ReactiveTraceService;
+import net.explorviz.trace.persistence.dao.Trace;
 import net.explorviz.trace.service.TimestampHelper;
-import net.explorviz.trace.service.TraceRepository;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsConfig;
@@ -24,14 +24,14 @@ import org.apache.kafka.streams.TestInputTopic;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.TopologyTestDriver;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @QuarkusTest
 class TopologyTest {
@@ -57,7 +57,7 @@ class TopologyTest {
   @Inject
   SpecificAvroSerde<SpanDynamic> spanDynamicSerde; // NOCS
 
-  TraceRepository traceRepository;
+  ReactiveTraceService reactiveTraceService;
 
   @BeforeEach
   void setUp() {
@@ -70,8 +70,8 @@ class TopologyTest {
 
     this.testDriver = new TopologyTestDriver(this.topology, config);
 
-    this.traceRepository = Mockito.mock(TraceRepository.class);
-    QuarkusMock.installMockForType(this.traceRepository, TraceRepository.class);
+    this.reactiveTraceService = Mockito.mock(ReactiveTraceService.class);
+    QuarkusMock.installMockForType(this.reactiveTraceService, ReactiveTraceService.class);
 
     this.inputTopic = this.testDriver.createInputTopic(this.inTopic, Serdes.String().serializer(),
         this.spanDynamicSerde.serializer());
@@ -97,7 +97,8 @@ class TopologyTest {
       final Trace inserted = i.getArgument(0, Trace.class);
       mockSpanDB.add(inserted);
       return Uni.createFrom().nullItem();
-    }).when(this.traceRepository).insert(ArgumentMatchers.any(Trace.class));
+    }).when(this.reactiveTraceService)
+        .insert(ArgumentMatchers.any(net.explorviz.trace.persistence.dao.Trace.class));
 
     // QuarkusMock.installMockForType(this.traceRepository, TraceRepository.class);
 
@@ -107,7 +108,27 @@ class TopologyTest {
     this.forceSuppression(testSpan.getStartTimeEpochMilli());
 
     Assertions.assertEquals(1, mockSpanDB.size());
-    Assertions.assertEquals(testSpan, mockSpanDB.get(0).getSpanList().get(0));
+
+    Assertions.assertEquals(testSpan.getLandscapeToken(),
+        mockSpanDB.get(0).getSpanList().get(0).getLandscapeToken());
+
+    Assertions.assertEquals(testSpan.getTraceId(),
+        mockSpanDB.get(0).getSpanList().get(0).getTraceId());
+
+    Assertions.assertEquals(testSpan.getSpanId(),
+        mockSpanDB.get(0).getSpanList().get(0).getSpanId());
+
+    Assertions.assertEquals(testSpan.getParentSpanId(),
+        mockSpanDB.get(0).getSpanList().get(0).getParentSpanId());
+
+    Assertions.assertEquals(testSpan.getStartTimeEpochMilli(),
+        mockSpanDB.get(0).getSpanList().get(0).getStartTime());
+
+    Assertions.assertEquals(testSpan.getEndTimeEpochMilli(),
+        mockSpanDB.get(0).getSpanList().get(0).getEndTime());
+
+    Assertions.assertEquals(testSpan.getHashCode(),
+        mockSpanDB.get(0).getSpanList().get(0).getHashCode());
   }
 
   @Test
@@ -115,15 +136,15 @@ class TopologyTest {
 
     final Map<String, Trace> mockSpanDB = new HashMap<>();
     Mockito.doAnswer(i -> {
-      final Trace inserted = i.getArgument(0, Trace.class);
+      final net.explorviz.trace.persistence.dao.Trace inserted = i.getArgument(0, Trace.class);
       final String key = inserted.getLandscapeToken() + "::" + inserted.getTraceId();
       mockSpanDB.put(key, inserted);
       return Uni.createFrom().nullItem();
-    }).when(this.traceRepository).insert(ArgumentMatchers.any(Trace.class));
+    }).when(this.reactiveTraceService).insert(ArgumentMatchers.any(Trace.class));
 
     final int spansPerTrace = 20;
 
-    final Trace testTrace = TraceHelper.randomTrace(spansPerTrace);
+    final net.explorviz.avro.Trace testTrace = TraceHelper.randomTrace(spansPerTrace);
     long t = testTrace.getStartTimeEpochMilli();
     for (final SpanDynamic s : testTrace.getSpanList()) {
       t += 1;
@@ -146,7 +167,8 @@ class TopologyTest {
       final String key = inserted.getLandscapeToken() + "::" + inserted.getTraceId();
       mockSpanDB.put(key, inserted);
       return Uni.createFrom().nullItem();
-    }).when(this.traceRepository).insert(ArgumentMatchers.any(Trace.class));
+    }).when(this.reactiveTraceService)
+        .insert(ArgumentMatchers.any(net.explorviz.trace.persistence.dao.Trace.class));
 
     final int spansPerTrace = 20;
     final int traceAmount = 20;
@@ -155,7 +177,7 @@ class TopologyTest {
     final List<KeyValue<String, SpanDynamic>> traces = new ArrayList<>();
     final long baseTime = TraceHelper.randomTrace(1).getStartTimeEpochMilli();
     for (int i = 0; i < traceAmount; i++) {
-      final Trace testTrace = TraceHelper.randomTrace(spansPerTrace);
+      final net.explorviz.avro.Trace testTrace = TraceHelper.randomTrace(spansPerTrace);
       long t = baseTime;
       for (final SpanDynamic s : testTrace.getSpanList()) {
         // Keep spans in one window
@@ -193,12 +215,13 @@ class TopologyTest {
       // });
       mockSpanDB.putIfAbsent(key, inserted);
       return Uni.createFrom().nullItem();
-    }).when(this.traceRepository).insert(ArgumentMatchers.any(Trace.class));
+    }).when(this.reactiveTraceService)
+        .insert(ArgumentMatchers.any(net.explorviz.trace.persistence.dao.Trace.class));
 
     // push spans on topic
     final int spansPerTrace = 20;
 
-    final Trace testTrace = TraceHelper.randomTrace(spansPerTrace);
+    final net.explorviz.avro.Trace testTrace = TraceHelper.randomTrace(spansPerTrace);
     long ts = TraceHelper.randomTrace(1).getStartTimeEpochMilli();
     for (int i = 0; i < testTrace.getSpanList().size(); i++) {
       final SpanDynamic s = testTrace.getSpanList().get(i);

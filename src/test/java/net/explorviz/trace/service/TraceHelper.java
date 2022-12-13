@@ -1,6 +1,5 @@
 package net.explorviz.trace.service;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import net.explorviz.avro.SpanDynamic;
@@ -23,26 +22,20 @@ public final class TraceHelper {
    * </ul>
    *
    * @param traceId the trace id to use
-   * @param token   the token to use
+   * @param token the token to use
    * @param parentSpanId the id of the parent span
    * @return a randomly generated span
    */
   public static SpanDynamic randomSpan(final String traceId, final String token,
-                                       final String parentSpanId) {
+      final String parentSpanId) {
     final long maxSeconds = 1609459200;
     final long minSeconds = 1577836800;
 
-    final int maxNanos = Instant.MAX.getNano();
-
-    return SpanDynamic.newBuilder()
-        .setLandscapeToken(token)
+    return SpanDynamic.newBuilder().setLandscapeToken(token)
         .setStartTimeEpochMilli(RandomUtils.nextLong(minSeconds, maxSeconds))
-        .setEndTimeEpochMilli(RandomUtils.nextLong(minSeconds, maxSeconds))
-        .setTraceId(traceId)
-        .setParentSpanId(parentSpanId)
-        .setSpanId(RandomStringUtils.random(8, true, true))
-        .setHashCode(RandomStringUtils.random(256, true, true))
-        .build();
+        .setEndTimeEpochMilli(RandomUtils.nextLong(minSeconds, maxSeconds)).setTraceId(traceId)
+        .setParentSpanId(parentSpanId).setSpanId(RandomStringUtils.random(8, true, true))
+        .setHashCode(RandomStringUtils.random(256, true, true)).build();
   }
 
 
@@ -72,8 +65,9 @@ public final class TraceHelper {
   }
 
   /**
-   * Creates a trace with a `iterations` branches following a single root node.
-   * Each branch has exactly `length` spans all spans on the same level share the same hashcode.
+   * Creates a trace with a `iterations` branches following a single root node. Each branch has
+   * exactly `length` spans all spans on the same level share the same hashcode.
+   *
    * @param iterations the number of iterations of the loop
    * @param length the length of each iteration in spans
    * @return a trace representing the loop
@@ -82,26 +76,26 @@ public final class TraceHelper {
     final String traceId = RandomStringUtils.random(6, true, true);
     final String landscapeToken = RandomStringUtils.random(32, true, true);
 
-    List<SpanDynamic> spans = new ArrayList<>(iterations*length+1);
+    final List<SpanDynamic> spans = new ArrayList<>(iterations * length + 1);
 
-    SpanDynamic root = randomSpan(traceId, landscapeToken, "");
+    final SpanDynamic root = randomSpan(traceId, landscapeToken, "");
     spans.add(root);
     long start = root.getStartTimeEpochMilli();
     long end = root.getEndTimeEpochMilli();
 
     // Generate 'length' hashcodes
-    ArrayList<String> hashcodes = new ArrayList<>(length);
-    for (int l=0; l < length; l++) {
+    final ArrayList<String> hashcodes = new ArrayList<>(length);
+    for (int l = 0; l < length; l++) {
       hashcodes.add(RandomStringUtils.random(256, true, true));
     }
 
-    for (int it=0; it<iterations; it++) {
-      SpanDynamic iterationRoot = randomSpan(traceId, landscapeToken, root.getSpanId());
+    for (int it = 0; it < iterations; it++) {
+      final SpanDynamic iterationRoot = randomSpan(traceId, landscapeToken, root.getSpanId());
       String parentId = iterationRoot.getSpanId();
       iterationRoot.setHashCode(hashcodes.get(0));
       spans.add(iterationRoot);
-      for (int l=1; l<length; l++) {
-        SpanDynamic next = randomSpan(traceId, landscapeToken, parentId);
+      for (int l = 1; l < length; l++) {
+        final SpanDynamic next = randomSpan(traceId, landscapeToken, parentId);
         next.setHashCode(hashcodes.get(l));
         if (TimestampHelper.isBefore(next.getStartTimeEpochMilli(), start)) {
           start = next.getStartTimeEpochMilli();
@@ -113,32 +107,26 @@ public final class TraceHelper {
         spans.add(next);
       }
     }
-    return Trace.newBuilder()
-        .setLandscapeToken(landscapeToken)
-        .setTraceId(traceId)
-        .setStartTimeEpochMilli(start)
-        .setEndTimeEpochMilli(end)
-        .setDuration(TimestampHelper.durationMs(start, end))
-        .setSpanList(spans)
-        .setTraceCount(1)
-        .setOverallRequestCount(1)
-        .build();
+    return Trace.newBuilder().setLandscapeToken(landscapeToken).setTraceId(traceId)
+        .setStartTimeEpochMilli(start).setEndTimeEpochMilli(end)
+        .setDuration(TimestampHelper.durationMs(start, end)).setSpanList(spans).setTraceCount(1)
+        .setOverallRequestCount(1).build();
   }
 
   public static Trace linearTrace(final int spanNum) {
     final String traceId = RandomStringUtils.random(6, true, true);
     final String landscapeToken = RandomStringUtils.random(32, true, true);
 
-    List<SpanDynamic> spans = new ArrayList<>(spanNum);
+    final List<SpanDynamic> spans = new ArrayList<>(spanNum);
 
-    SpanDynamic root = randomSpan(traceId, landscapeToken, "");
+    final SpanDynamic root = randomSpan(traceId, landscapeToken, "");
     spans.add(root);
     String parentId = root.getSpanId();
     long start = root.getStartTimeEpochMilli();
     long end = root.getEndTimeEpochMilli();
 
-    for (int i=0; i<spanNum-1; i++) {
-      SpanDynamic next = randomSpan(traceId, landscapeToken, parentId);
+    for (int i = 0; i < spanNum - 1; i++) {
+      final SpanDynamic next = randomSpan(traceId, landscapeToken, parentId);
       if (TimestampHelper.isBefore(next.getStartTimeEpochMilli(), start)) {
         start = next.getStartTimeEpochMilli();
       }
@@ -148,22 +136,16 @@ public final class TraceHelper {
       parentId = next.getSpanId();
       spans.add(next);
     }
-    return Trace.newBuilder()
-        .setLandscapeToken(landscapeToken)
-        .setTraceId(traceId)
-        .setStartTimeEpochMilli(start)
-        .setEndTimeEpochMilli(end)
-        .setDuration(TimestampHelper.durationMs(start, end))
-        .setSpanList(spans)
-        .setTraceCount(1)
-        .setOverallRequestCount(1)
-        .build();
+    return Trace.newBuilder().setLandscapeToken(landscapeToken).setTraceId(traceId)
+        .setStartTimeEpochMilli(start).setEndTimeEpochMilli(end)
+        .setDuration(TimestampHelper.durationMs(start, end)).setSpanList(spans).setTraceCount(1)
+        .setOverallRequestCount(1).build();
   }
 
   /**
-   * Create a trace that represents a linear recursion, i.e.,
-   * creates a linear trace with repeated groups of `size` spans that share tha same hashcode.
-   * The total lenght (number of spans) is `recursion`*`size`.
+   * Create a trace that represents a linear recursion, i.e., creates a linear trace with repeated
+   * groups of `size` spans that share tha same hashcode. The total lenght (number of spans) is
+   * `recursion`*`size`.
    *
    * @param recursions the amount of recursion
    * @param size the size of each recursive call
@@ -173,43 +155,37 @@ public final class TraceHelper {
     final String traceId = RandomStringUtils.random(6, true, true);
     final String landscapeToken = RandomStringUtils.random(32, true, true);
 
-    List<SpanDynamic> spans = new ArrayList<>(recursions*size+1);
+    final List<SpanDynamic> spans = new ArrayList<>(recursions * size + 1);
 
-    ArrayList<String> hashcodes = new ArrayList<>(size);
-    for (int l=0; l < size; l++) {
+    final ArrayList<String> hashcodes = new ArrayList<>(size);
+    for (int l = 0; l < size; l++) {
       hashcodes.add(RandomStringUtils.random(256, true, true));
     }
 
-    SpanDynamic root = randomSpan(traceId, landscapeToken, "");
+    final SpanDynamic root = randomSpan(traceId, landscapeToken, "");
     root.setHashCode(hashcodes.get(0));
     spans.add(root);
     String parentId = root.getSpanId();
     long start = root.getStartTimeEpochMilli();
     long end = root.getEndTimeEpochMilli();
 
-    for (int i=1; i<=(recursions*size); i++) {
-        SpanDynamic next = randomSpan(traceId, landscapeToken, parentId);
-        next.setHashCode(hashcodes.get(i%size));
-        if (TimestampHelper.isBefore(next.getStartTimeEpochMilli(), start)) {
-          start = next.getStartTimeEpochMilli();
-        }
-        if (TimestampHelper.isAfter(next.getEndTimeEpochMilli(), end)) {
-          end = next.getEndTimeEpochMilli();
-        }
-        parentId = next.getSpanId();
-        spans.add(next);
+    for (int i = 1; i <= recursions * size; i++) {
+      final SpanDynamic next = randomSpan(traceId, landscapeToken, parentId);
+      next.setHashCode(hashcodes.get(i % size));
+      if (TimestampHelper.isBefore(next.getStartTimeEpochMilli(), start)) {
+        start = next.getStartTimeEpochMilli();
+      }
+      if (TimestampHelper.isAfter(next.getEndTimeEpochMilli(), end)) {
+        end = next.getEndTimeEpochMilli();
+      }
+      parentId = next.getSpanId();
+      spans.add(next);
 
     }
-    return Trace.newBuilder()
-        .setLandscapeToken(landscapeToken)
-        .setTraceId(traceId)
-        .setStartTimeEpochMilli(start)
-        .setEndTimeEpochMilli(end)
-        .setDuration(TimestampHelper.durationMs(start, end))
-        .setSpanList(spans)
-        .setTraceCount(1)
-        .setOverallRequestCount(1)
-        .build();
+    return Trace.newBuilder().setLandscapeToken(landscapeToken).setTraceId(traceId)
+        .setStartTimeEpochMilli(start).setEndTimeEpochMilli(end)
+        .setDuration(TimestampHelper.durationMs(start, end)).setSpanList(spans).setTraceCount(1)
+        .setOverallRequestCount(1).build();
   }
 
   public static Trace randomTrace(final int spanAmount, final String landscapeToken) {
@@ -228,11 +204,8 @@ public final class TraceHelper {
       if (root == null) {
         psid = "";
       } else {
-        psid = spans.stream()
-            .map(SpanDynamic::getSpanId)
-            .skip(RandomUtils.nextInt(0, spans.size() - 1))
-            .findAny()
-            .get();
+        psid = spans.stream().map(SpanDynamic::getSpanId)
+            .skip(RandomUtils.nextInt(0, spans.size() - 1)).findAny().get();
       }
       final SpanDynamic s = randomSpan(traceId, landscapeToken, psid);
       if (root == null) {
@@ -248,16 +221,10 @@ public final class TraceHelper {
     }
 
 
-    return Trace.newBuilder()
-        .setLandscapeToken(landscapeToken)
-        .setTraceId(traceId)
-        .setStartTimeEpochMilli(start)
-        .setEndTimeEpochMilli(end)
-        .setDuration(TimestampHelper.durationMs(start, end))
-        .setSpanList(spans)
-        .setTraceCount(1)
-        .setOverallRequestCount(1)
-        .build();
+    return Trace.newBuilder().setLandscapeToken(landscapeToken).setTraceId(traceId)
+        .setStartTimeEpochMilli(start).setEndTimeEpochMilli(end)
+        .setDuration(TimestampHelper.durationMs(start, end)).setSpanList(spans).setTraceCount(1)
+        .setOverallRequestCount(1).build();
   }
 
 

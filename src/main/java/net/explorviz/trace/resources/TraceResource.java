@@ -9,8 +9,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import net.explorviz.trace.persistence.ReactiveTraceService;
 import net.explorviz.trace.persistence.dao.Trace;
-import net.explorviz.trace.service.TraceRepository;
 
 /**
  * HTTP resource for accessing traces.
@@ -20,11 +20,11 @@ public class TraceResource {
 
   private static final long MIN_SECONDS = 1_577_836_800; // 01.01.2020 00:00
 
-  private final TraceRepository repository;
+  private final ReactiveTraceService reactiveTraceService;
 
   @Inject
-  public TraceResource(final TraceRepository repository) {
-    this.repository = repository;
+  public TraceResource(final ReactiveTraceService repository) {
+    this.reactiveTraceService = repository;
   }
 
   @GET
@@ -32,15 +32,14 @@ public class TraceResource {
   @Produces(MediaType.APPLICATION_JSON)
   public Multi<Trace> getTrace(@PathParam("token") final String landscapeToken,
       @PathParam("traceid") final String traceId) {
-    return this.repository.getByTraceId(landscapeToken, traceId);
+    return this.reactiveTraceService.getByTraceId(landscapeToken, traceId);
   }
 
   @GET
   @Path("{token}/dynamic")
   @Produces(MediaType.APPLICATION_JSON)
   public Multi<Trace> getTraces(@PathParam("token") final String landscapeToken,
-      @QueryParam("from") final Long fromMs,
-      @QueryParam("to") final Long toMs) {
+      @QueryParam("from") final Long fromMs, @QueryParam("to") final Long toMs) {
 
     long from = MIN_SECONDS;
     long to = Instant.now().toEpochMilli();
@@ -61,7 +60,7 @@ public class TraceResource {
         break;
     }
 
-    return this.repository.getByStartTimeAndEndTime(landscapeToken, from, to);
+    return this.reactiveTraceService.getByStartTimeAndEndTime(landscapeToken, from, to);
   }
 
 

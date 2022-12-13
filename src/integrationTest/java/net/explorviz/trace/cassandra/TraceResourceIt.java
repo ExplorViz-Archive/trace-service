@@ -3,40 +3,36 @@ package net.explorviz.trace.cassandra;
 import com.datastax.oss.quarkus.test.CassandraTestResource;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.TestProfile;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
+import net.explorviz.trace.persistence.ReactiveTraceService;
 import net.explorviz.trace.persistence.dao.Trace;
 import net.explorviz.trace.service.TraceConverter;
-import net.explorviz.trace.service.TraceRepository;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @QuarkusTest
 @QuarkusTestResource(KafkaTestResource.class)
 @QuarkusTestResource(CassandraTestResource.class)
-//@TestProfile(CassandraTestProfile.class)
 public class TraceResourceIt {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(TraceResourceIt.class);
+  // private static final Logger LOGGER = LoggerFactory.getLogger(TraceResourceIt.class);
 
   @Inject
-  TraceRepository repository;
+  ReactiveTraceService reactiveTraceService;
 
   @Test
   public void shouldSaveAndRetrieveEntityById() throws InterruptedException {
 
     final Trace expected = TraceConverter.convertTraceToDao(TraceHelper.randomTrace(5));
 
-    this.repository.insert(expected).await().indefinitely();
+    this.reactiveTraceService.insert(expected).await().indefinitely();
 
     final Trace actual =
-        this.repository.getByTraceId(expected.getLandscapeToken(), expected.getTraceId()).collect()
-            .first().await().indefinitely();
+        this.reactiveTraceService.getByTraceId(expected.getLandscapeToken(), expected.getTraceId())
+            .collect().first().await().indefinitely();
 
     Assertions.assertEquals(expected, actual);
   }
@@ -50,31 +46,31 @@ public class TraceResourceIt {
     final Trace expected4 = TraceConverter.convertTraceToDao(TraceHelper.randomTrace(5));
     final Trace expected5 = TraceConverter.convertTraceToDao(TraceHelper.randomTrace(5));
 
-    this.repository.insert(expected1).await().indefinitely();
-    this.repository.insert(expected2).await().indefinitely();
-    this.repository.insert(expected3).await().indefinitely();
-    this.repository.insert(expected4).await().indefinitely();
-    this.repository.insert(expected5).await().indefinitely();
+    this.reactiveTraceService.insert(expected1).await().indefinitely();
+    this.reactiveTraceService.insert(expected2).await().indefinitely();
+    this.reactiveTraceService.insert(expected3).await().indefinitely();
+    this.reactiveTraceService.insert(expected4).await().indefinitely();
+    this.reactiveTraceService.insert(expected5).await().indefinitely();
 
-    final Trace actual1 =
-        this.repository.getByTraceId(expected1.getLandscapeToken(), expected1.getTraceId())
-            .collect().first().await().indefinitely();
+    final Trace actual1 = this.reactiveTraceService
+        .getByTraceId(expected1.getLandscapeToken(), expected1.getTraceId()).collect().first()
+        .await().indefinitely();
 
-    final Trace actual2 =
-        this.repository.getByTraceId(expected2.getLandscapeToken(), expected2.getTraceId())
-            .collect().first().await().indefinitely();
+    final Trace actual2 = this.reactiveTraceService
+        .getByTraceId(expected2.getLandscapeToken(), expected2.getTraceId()).collect().first()
+        .await().indefinitely();
 
-    final Trace actual3 =
-        this.repository.getByTraceId(expected3.getLandscapeToken(), expected3.getTraceId())
-            .collect().first().await().indefinitely();
+    final Trace actual3 = this.reactiveTraceService
+        .getByTraceId(expected3.getLandscapeToken(), expected3.getTraceId()).collect().first()
+        .await().indefinitely();
 
-    final Trace actual4 =
-        this.repository.getByTraceId(expected4.getLandscapeToken(), expected4.getTraceId())
-            .collect().first().await().indefinitely();
+    final Trace actual4 = this.reactiveTraceService
+        .getByTraceId(expected4.getLandscapeToken(), expected4.getTraceId()).collect().first()
+        .await().indefinitely();
 
-    final Trace actual5 =
-        this.repository.getByTraceId(expected5.getLandscapeToken(), expected5.getTraceId())
-            .collect().first().await().indefinitely();
+    final Trace actual5 = this.reactiveTraceService
+        .getByTraceId(expected5.getLandscapeToken(), expected5.getTraceId()).collect().first()
+        .await().indefinitely();
 
     Assertions.assertEquals(expected1, actual1);
     Assertions.assertEquals(expected2, actual2);
@@ -106,14 +102,14 @@ public class TraceResourceIt {
     expectedList.add(expected4);
     expectedList.add(expected5);
 
-    this.repository.insert(expected1).await().indefinitely();
-    this.repository.insert(expected2).await().indefinitely();
-    this.repository.insert(expected3).await().indefinitely();
-    this.repository.insert(expected4).await().indefinitely();
-    this.repository.insert(expected5).await().indefinitely();
+    this.reactiveTraceService.insert(expected1).await().indefinitely();
+    this.reactiveTraceService.insert(expected2).await().indefinitely();
+    this.reactiveTraceService.insert(expected3).await().indefinitely();
+    this.reactiveTraceService.insert(expected4).await().indefinitely();
+    this.reactiveTraceService.insert(expected5).await().indefinitely();
 
-    final List<Trace> actualTraceList =
-        this.repository.getAllAsync(landscapeToken).collect().asList().await().indefinitely();
+    final List<Trace> actualTraceList = this.reactiveTraceService.getAllAsync(landscapeToken)
+        .collect().asList().await().indefinitely();
 
     Assertions.assertTrue(expectedList.size() == actualTraceList.size());
 
@@ -146,26 +142,24 @@ public class TraceResourceIt {
     final Trace remainder5 = TraceConverter
         .convertTraceToDao(TraceHelper.randomTrace(5, landscapeToken, fromSeconds2, toSeconds2));
 
-    long filteringKey =
-        Math.min(expected1.getStartTime(), expected2.getStartTime());
+    long filteringKey = Math.min(expected1.getStartTime(), expected2.getStartTime());
 
-    filteringKey =
-        Math.min(filteringKey, expected3.getStartTime());
+    filteringKey = Math.min(filteringKey, expected3.getStartTime());
 
     final List<Trace> expectedList = new ArrayList<>();
     expectedList.add(expected1);
     expectedList.add(expected2);
     expectedList.add(expected3);
 
-    this.repository.insert(expected1).await().indefinitely();
-    this.repository.insert(expected2).await().indefinitely();
-    this.repository.insert(expected3).await().indefinitely();
-    this.repository.insert(remainder4).await().indefinitely();
-    this.repository.insert(remainder5).await().indefinitely();
+    this.reactiveTraceService.insert(expected1).await().indefinitely();
+    this.reactiveTraceService.insert(expected2).await().indefinitely();
+    this.reactiveTraceService.insert(expected3).await().indefinitely();
+    this.reactiveTraceService.insert(remainder4).await().indefinitely();
+    this.reactiveTraceService.insert(remainder5).await().indefinitely();
 
-    final List<Trace> actualTraceList =
-        this.repository.getByStartTimeAndEndTime(landscapeToken, filteringKey, filteringKey + 1000)
-            .collect().asList().await().indefinitely();
+    final List<Trace> actualTraceList = this.reactiveTraceService
+        .getByStartTimeAndEndTime(landscapeToken, filteringKey, filteringKey + 1000).collect()
+        .asList().await().indefinitely();
 
     Assertions.assertEquals(expectedList.size(), actualTraceList.size());
 
@@ -194,24 +188,24 @@ public class TraceResourceIt {
     expectedList.add(expected2);
     expectedList.add(expected3);
 
-    this.repository.insert(expected1).await().indefinitely();
-    this.repository.insert(expected2).await().indefinitely();
-    this.repository.insert(expected3).await().indefinitely();
+    this.reactiveTraceService.insert(expected1).await().indefinitely();
+    this.reactiveTraceService.insert(expected2).await().indefinitely();
+    this.reactiveTraceService.insert(expected3).await().indefinitely();
 
     final String newLandscapeToken = RandomStringUtils.random(32, true, true);
-    final var newToken =
-        this.repository.getAllAsync(newLandscapeToken).collect().asList().await().indefinitely();
-    final var clonedToken =
-        this.repository.getAllAsync(landscapeToken).collect().asList().await().indefinitely();
+    final var newToken = this.reactiveTraceService.getAllAsync(newLandscapeToken).collect().asList()
+        .await().indefinitely();
+    final var clonedToken = this.reactiveTraceService.getAllAsync(landscapeToken).collect().asList()
+        .await().indefinitely();
 
     Assertions.assertEquals(0, newToken.size());
     Assertions.assertEquals(3, clonedToken.size());
 
-    this.repository.cloneAllAsync(newLandscapeToken, landscapeToken).collect().asList().await()
-        .indefinitely();
+    this.reactiveTraceService.cloneAllAsync(newLandscapeToken, landscapeToken).collect().asList()
+        .await().indefinitely();
 
-    final var result =
-        this.repository.getAllAsync(newLandscapeToken).collect().asList().await().indefinitely();
+    final var result = this.reactiveTraceService.getAllAsync(newLandscapeToken).collect().asList()
+        .await().indefinitely();
 
     Assertions.assertEquals(3, result.size());
   }

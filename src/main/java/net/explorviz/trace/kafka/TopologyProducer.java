@@ -8,8 +8,9 @@ import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import net.explorviz.avro.SpanDynamic;
 import net.explorviz.avro.Trace;
+import net.explorviz.trace.persistence.ReactiveTraceService;
 import net.explorviz.trace.service.TraceAggregator;
-import net.explorviz.trace.service.TraceRepository;
+import net.explorviz.trace.service.TraceConverter;
 import net.explorviz.trace.service.reduction.CallTree;
 import net.explorviz.trace.service.reduction.CallTreeConverter;
 import net.explorviz.trace.service.reduction.DepthReducer;
@@ -56,7 +57,7 @@ public class TopologyProducer {
   /* default */ SpecificAvroSerde<Trace> traceAvroSerde; // NOCS
 
   @Inject
-  /* default */ TraceRepository traceRepository; // NOCS
+  /* default */ ReactiveTraceService reactiveTraceService; // NOCS
 
   @Inject
   /* default */ DepthReducer depthReducer; // NOCS
@@ -84,7 +85,7 @@ public class TopologyProducer {
       this.lastReceivedTotalSpans.incrementAndGet();
     });
 
-    if (discard) {
+    if (this.discard) {
       return builder.build();
     }
 
@@ -142,12 +143,13 @@ public class TopologyProducer {
       // DEBUG Total traces for window
       this.spanReducedTracesCount.incrementAndGet();
 
-      this.traceRepository.insert(t).subscribe().with(unused -> {
-      }, failure -> {
-          if (LOGGER.isErrorEnabled()) {
-            LOGGER.error("Could not persist trace", failure);
-          }
-        });
+      this.reactiveTraceService.insert(TraceConverter.convertTraceToDao(t)).subscribe()
+          .with(unused -> {
+          }, failure -> {
+            if (LOGGER.isErrorEnabled()) { // NOCS
+              LOGGER.error("Could not persist trace", failure); // NOCS
+            } // NOCS
+          }); // NOCS
     });
 
     // END Span conversion
@@ -161,7 +163,7 @@ public class TopologyProducer {
     final int reconstructedTraces = this.reconstructedTracesCount.getAndSet(0);
     final int spanReducedTraces = this.spanReducedTracesCount.getAndSet(0);
     if (LOGGER.isDebugEnabled()) {
-      if (discard) {
+      if (this.discard) {
         LOGGER.debug("Received and discarded {} spans.", totalSpans);
       } else {
         LOGGER.debug(

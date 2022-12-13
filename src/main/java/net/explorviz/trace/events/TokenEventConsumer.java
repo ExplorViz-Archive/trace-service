@@ -6,7 +6,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import net.explorviz.avro.EventType;
 import net.explorviz.avro.TokenEvent;
-import net.explorviz.trace.service.TraceRepository;
+import net.explorviz.trace.persistence.ReactiveTraceService;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,10 +21,10 @@ public class TokenEventConsumer {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TokenEventConsumer.class);
 
-  private final TraceRepository service;
+  private final ReactiveTraceService service;
 
   @Inject
-  public TokenEventConsumer(final TraceRepository traceReactiveService) {
+  public TokenEventConsumer(final ReactiveTraceService traceReactiveService) {
     this.service = traceReactiveService;
   }
 
@@ -50,7 +50,7 @@ public class TokenEventConsumer {
       if (LOGGER.isTraceEnabled()) {
         LOGGER.trace("Deleting landscape for token value{}", tokenValueKey);
       }
-      this.service.delete(tokenValueKey);
+      this.service.deleteByLandscapeToken(tokenValueKey);
     } else if (tokenEvent.getType() == EventType.CLONED) {
       if (LOGGER.isTraceEnabled()) {
         LOGGER.trace("Cloning landscapes for token {}", tokenEvent.getToken());
