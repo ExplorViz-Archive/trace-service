@@ -8,37 +8,35 @@ import net.explorviz.trace.persistence.dao.ReactiveTraceDao;
 import net.explorviz.trace.persistence.dao.Trace;
 
 /**
- * Business layer service to store/load {@link Trace} from the Cassandra database.
+ * Service that leverages the reactive DAO {{@link ReactiveTraceDao}}.
  */
 @ApplicationScoped
 public class ReactiveTraceService {
 
-  private final ReactiveTraceDao traceDaoReactive;
-
   @Inject
-  public ReactiveTraceService(final ReactiveTraceDao traceDaoReactive) {
-    this.traceDaoReactive = traceDaoReactive;
-  }
+  /* default */ Uni<ReactiveTraceDao> traceDaoReactive; // NOCS
 
   public Uni<Void> insert(final Trace trace) {
-    return this.traceDaoReactive.insertAsync(trace);
+    return this.traceDaoReactive.flatMap(dao -> dao.insertAsync(trace));
   }
 
   public Uni<Void> deleteByLandscapeToken(final String landscapeTokenValue) {
-    return this.traceDaoReactive.deleteAsync(landscapeTokenValue);
+    return this.traceDaoReactive.flatMap(dao -> dao.deleteAsync(landscapeTokenValue));
   }
 
   public Multi<Trace> getAllAsync(final String landscapeToken) {
-    return this.traceDaoReactive.getAllAsync(landscapeToken);
+    return this.traceDaoReactive.toMulti().flatMap(dao -> dao.getAllAsync(landscapeToken));
   }
 
   public Multi<Trace> getByStartTimeAndEndTime(final String landscapeToken, final long startTime,
       final long endTime) {
-    return this.traceDaoReactive.getByStartTimeAndEndTime(landscapeToken, startTime, endTime);
+    return this.traceDaoReactive.toMulti()
+        .flatMap(dao -> dao.getByStartTimeAndEndTime(landscapeToken, startTime, endTime));
   }
 
   public Multi<Trace> getByTraceId(final String landscapeToken, final String traceId) {
-    return this.traceDaoReactive.getByTraceId(landscapeToken, traceId);
+    return this.traceDaoReactive.toMulti()
+        .flatMap(dao -> dao.getByTraceId(landscapeToken, traceId));
   }
 
   public Multi<Trace> cloneAllAsync(final String landscapeToken,
