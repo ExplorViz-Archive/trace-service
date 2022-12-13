@@ -24,7 +24,8 @@ import org.apache.kafka.streams.TestInputTopic;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.TopologyTestDriver;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,7 +36,7 @@ import org.mockito.Mockito;
 @QuarkusTest
 class TopologyTest {
 
-  private static final Logger LOGGER = Logger.getLogger(TopologyTest.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(TopologyTest.class);
 
   private TopologyTestDriver testDriver;
 

@@ -97,9 +97,9 @@ public class SimpleLoopReducer implements SpanReducer {
           if (reducibleNodesOnLevel.contains(v)) {
             continue;
           }
-          final List<CallTreeNode>[] pathsToLca = this.sameLevelPathToLca(u, v);
-          final List<CallTreeNode> uToLca = pathsToLca[0];
-          final List<CallTreeNode> vToLca = pathsToLca[1];
+          final List<List<CallTreeNode>> pathsToLca = this.sameLevelPathToLca(u, v);
+          final List<CallTreeNode> uToLca = pathsToLca.get(0);
+          final List<CallTreeNode> vToLca = pathsToLca.get(1);
 
           // Check if both paths are equal w.r.t. the hashcodes of referenced methods
           boolean isEqualPath = true;
@@ -119,8 +119,7 @@ public class SimpleLoopReducer implements SpanReducer {
     return reducibleNodes;
   }
 
-
-  private List<CallTreeNode>[] sameLevelPathToLca(final CallTreeNode u, final CallTreeNode v) {
+  private List<List<CallTreeNode>> sameLevelPathToLca(final CallTreeNode u, final CallTreeNode v) {
     if (u.getLevel() != v.getLevel()) {
       throw new IllegalArgumentException("Can only calculate for nodes on same level");
     }
@@ -137,7 +136,7 @@ public class SimpleLoopReducer implements SpanReducer {
       cv = cv.getParent();
     } while (!cu.equals(cv));
 
-    return new List[] {lcau, lcav};
+    return List.of(lcau, lcav);
   }
 
 }
