@@ -11,7 +11,7 @@ import io.smallrye.mutiny.Uni;
  * Datastax Dao for a {@link Trace}.
  */
 @Dao
-public interface TraceDaoReactive {
+public interface ReactiveTraceDao {
 
   @Insert
   Uni<Void> insertAsync(Trace trace);

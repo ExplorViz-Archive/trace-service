@@ -10,7 +10,7 @@ import org.mockito.Mockito;
 
 public class TraceReactiveServiceTest {
 
-  private TraceReactiveService mockTraceReactiveService;
+  private ReactiveTraceService mockTraceReactiveService;
 
   private TraceRepository testee;
 
@@ -19,7 +19,7 @@ public class TraceReactiveServiceTest {
 
   @BeforeEach
   public void setup() {
-    mockTraceReactiveService = Mockito.mock(TraceReactiveService.class);
+    mockTraceReactiveService = Mockito.mock(ReactiveTraceService.class);
     var traces = Multi.createFrom().items(new Trace(), new Trace());
     Mockito.when(mockTraceReactiveService.getAllAsync(ORIGINAL_TOKEN)).thenReturn(traces);
     testee = new TraceRepository(mockTraceReactiveService);

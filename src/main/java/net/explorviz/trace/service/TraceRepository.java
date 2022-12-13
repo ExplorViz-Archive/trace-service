@@ -4,7 +4,7 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import net.explorviz.trace.persistence.TraceReactiveService;
+import net.explorviz.trace.persistence.ReactiveTraceService;
 import net.explorviz.trace.persistence.dao.Trace;
 
 /**
@@ -13,10 +13,10 @@ import net.explorviz.trace.persistence.dao.Trace;
 @ApplicationScoped
 public class TraceRepository {
 
-  private final TraceReactiveService traceReactiveService;
+  private final ReactiveTraceService traceReactiveService;
 
   @Inject
-  public TraceRepository(final TraceReactiveService traceReactiveService) {
+  public TraceRepository(final ReactiveTraceService traceReactiveService) {
     this.traceReactiveService = traceReactiveService;
   }
 

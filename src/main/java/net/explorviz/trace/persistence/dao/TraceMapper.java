@@ -10,6 +10,6 @@ import com.datastax.oss.driver.api.mapper.annotations.Mapper;
 public interface TraceMapper {
 
   @DaoFactory
-  TraceDaoReactive traceDaoReactive();
+  ReactiveTraceDao traceDaoReactive();
 
 }

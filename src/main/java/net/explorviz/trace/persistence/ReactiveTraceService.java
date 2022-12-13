@@ -5,18 +5,18 @@ import io.smallrye.mutiny.Uni;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import net.explorviz.trace.persistence.dao.Trace;
-import net.explorviz.trace.persistence.dao.TraceDaoReactive;
+import net.explorviz.trace.persistence.dao.ReactiveTraceDao;
 
 /**
  * Business layer service to store/load {@link Trace} from the Cassandra database.
  */
 @ApplicationScoped
-public class TraceReactiveService {
+public class ReactiveTraceService {
 
-  private final TraceDaoReactive traceDaoReactive;
+  private final ReactiveTraceDao traceDaoReactive;
 
   @Inject
-  public TraceReactiveService(final TraceDaoReactive traceDaoReactive) {
+  public ReactiveTraceService(final ReactiveTraceDao traceDaoReactive) {
     this.traceDaoReactive = traceDaoReactive;
   }
 

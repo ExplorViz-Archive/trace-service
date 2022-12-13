@@ -6,18 +6,18 @@ import java.time.Duration;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
-import net.explorviz.trace.persistence.dao.TraceDaoReactive;
+import net.explorviz.trace.persistence.dao.ReactiveTraceDao;
 import net.explorviz.trace.persistence.dao.TraceMapper;
 import net.explorviz.trace.persistence.dao.TraceMapperBuilder;
 
 /**
- * Factory / Producer for the {@link TraceDaoReactive}.
+ * Factory / Producer for the {@link ReactiveTraceDao}.
  */
 public class TraceDaoProducer {
 
   private static final long CQL_TIMEOUT_SECONDS = 5;
 
-  private final TraceDaoReactive spanDynamicDaoReactive;
+  private final ReactiveTraceDao spanDynamicDaoReactive;
 
   @Inject
   public TraceDaoProducer(final Uni<QuarkusCqlSession> session) {
@@ -32,7 +32,7 @@ public class TraceDaoProducer {
 
   @Produces
   @ApplicationScoped
-    /* default */ TraceDaoReactive produceSpanDynamicDaoReactive() { // NOPMD
+    /* default */ ReactiveTraceDao produceSpanDynamicDaoReactive() { // NOPMD
     return this.spanDynamicDaoReactive;
   }
 
