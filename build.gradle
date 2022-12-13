@@ -31,6 +31,23 @@ task integrationTest(type: Test) {
   shouldRunAfter test
 }
 
+jacocoTestReport {
+  dependsOn test
+
+  afterEvaluate {
+    classDirectories.setFrom(files(classDirectories.files.collect {
+      fileTree(dir: it, exclude: [
+              "**/*MapperGenerated*",
+              "**/TraceMapperBuilder.*",
+              "**/SpanDynamicDaoProducer.*",
+              "**/TraceMapper.*",
+              "**/TraceMapperProducer.*"
+      ])
+    }))
+  }
+}
+jacocoTestReport.dependsOn integrationTest
+
 check.dependsOn integrationTest
 
 configurations {
