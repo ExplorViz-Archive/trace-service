@@ -2,6 +2,7 @@ package net.explorviz.trace.persistence.dao;
 
 import com.datastax.oss.driver.api.mapper.annotations.DaoFactory;
 import com.datastax.oss.driver.api.mapper.annotations.Mapper;
+import io.smallrye.mutiny.Uni;
 
 /**
  * Datastax Dao Mapper for {@link Trace}.
@@ -10,6 +11,9 @@ import com.datastax.oss.driver.api.mapper.annotations.Mapper;
 public interface TraceMapper {
 
   @DaoFactory
-  TraceDaoReactive traceDaoReactive();
+  ReactiveTraceDao traceDaoReactiveSync();
+
+  @DaoFactory
+  Uni<ReactiveTraceDao> traceDaoReactiveUni();
 
 }

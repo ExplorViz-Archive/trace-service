@@ -4,14 +4,13 @@ import static io.restassured.RestAssured.given;
 import com.datastax.oss.quarkus.test.CassandraTestResource;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.TestProfile;
 import io.restassured.response.Response;
 import java.util.Arrays;
 import java.util.List;
 import javax.inject.Inject;
+import net.explorviz.trace.persistence.ReactiveTraceService;
 import net.explorviz.trace.persistence.dao.Trace;
 import net.explorviz.trace.service.TraceConverter;
-import net.explorviz.trace.service.TraceRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -19,7 +18,6 @@ import org.junit.jupiter.api.Test;
 @QuarkusTest
 @QuarkusTestResource(KafkaTestResource.class)
 @QuarkusTestResource(CassandraTestResource.class)
-//@TestProfile(CassandraTestProfile.class)
 public class TraceResourceApi {
 
   // private static final Logger LOGGER = Logger.getLogger(TraceResourceIt.class);
@@ -31,19 +29,17 @@ public class TraceResourceApi {
   // - get by trace id
 
   @Inject
-  TraceRepository repository;
+  ReactiveTraceService reactiveTraceService;
 
   @Test
   public void shouldSaveAndRetrieveEntityById() throws InterruptedException {
 
-    final Trace expected =
-        TraceConverter.convertTraceToDao(TraceHelper.randomTrace(5));
+    final Trace expected = TraceConverter.convertTraceToDao(TraceHelper.randomTrace(5));
 
-    this.repository.insert(expected).await().indefinitely();
+    this.reactiveTraceService.insert(expected).await().indefinitely();
 
-    final Response response =
-        given().pathParam("landscapeToken", expected.getLandscapeToken()).when()
-            .get("/v2/landscapes/{landscapeToken}/dynamic");
+    final Response response = given().pathParam("landscapeToken", expected.getLandscapeToken())
+        .when().get("/v2/landscapes/{landscapeToken}/dynamic");
 
     final net.explorviz.trace.persistence.dao.Trace[] body =
         response.getBody().as(net.explorviz.trace.persistence.dao.Trace[].class);
@@ -68,15 +64,14 @@ public class TraceResourceApi {
     final Trace remainder5 =
         TraceConverter.convertTraceToDao(TraceHelper.randomTrace(5, landscapeToken2));
 
-    this.repository.insert(expected1).await().indefinitely();
-    this.repository.insert(expected2).await().indefinitely();
-    this.repository.insert(expected3).await().indefinitely();
-    this.repository.insert(remainder4).await().indefinitely();
-    this.repository.insert(remainder5).await().indefinitely();
+    this.reactiveTraceService.insert(expected1).await().indefinitely();
+    this.reactiveTraceService.insert(expected2).await().indefinitely();
+    this.reactiveTraceService.insert(expected3).await().indefinitely();
+    this.reactiveTraceService.insert(remainder4).await().indefinitely();
+    this.reactiveTraceService.insert(remainder5).await().indefinitely();
 
-    final Response response =
-        given().pathParam("landscapeToken", landscapeToken1).when()
-            .get("/v2/landscapes/{landscapeToken}/dynamic");
+    final Response response = given().pathParam("landscapeToken", landscapeToken1).when()
+        .get("/v2/landscapes/{landscapeToken}/dynamic");
 
     final net.explorviz.trace.persistence.dao.Trace[] body =
         response.getBody().as(net.explorviz.trace.persistence.dao.Trace[].class);
@@ -102,35 +97,29 @@ public class TraceResourceApi {
     final long fromEpoch2 = 1605700811000L;
     final long toEpoch2 = 1605700821000L;
 
-    final Trace expected1 =
-        TraceConverter.convertTraceToDao(
-            TraceHelper.randomTrace(5, landscapeToken1, fromEpoch1, toEpoch1));
-    final Trace expected2 =
-        TraceConverter.convertTraceToDao(
-            TraceHelper.randomTrace(5, landscapeToken1, toEpoch1, fromEpoch2));
-    final Trace remainder3 =
-        TraceConverter.convertTraceToDao(
-            TraceHelper.randomTrace(5, landscapeToken1, fromEpoch2, toEpoch2));
-    final Trace remainder4 =
-        TraceConverter.convertTraceToDao(
-            TraceHelper.randomTrace(5, landscapeToken2, fromEpoch1, toEpoch1));
-    final Trace remainder5 =
-        TraceConverter.convertTraceToDao(
-            TraceHelper.randomTrace(5, landscapeToken2, fromEpoch2, toEpoch2));
+    final Trace expected1 = TraceConverter
+        .convertTraceToDao(TraceHelper.randomTrace(5, landscapeToken1, fromEpoch1, toEpoch1));
+    final Trace expected2 = TraceConverter
+        .convertTraceToDao(TraceHelper.randomTrace(5, landscapeToken1, toEpoch1, fromEpoch2));
+    final Trace remainder3 = TraceConverter
+        .convertTraceToDao(TraceHelper.randomTrace(5, landscapeToken1, fromEpoch2, toEpoch2));
+    final Trace remainder4 = TraceConverter
+        .convertTraceToDao(TraceHelper.randomTrace(5, landscapeToken2, fromEpoch1, toEpoch1));
+    final Trace remainder5 = TraceConverter
+        .convertTraceToDao(TraceHelper.randomTrace(5, landscapeToken2, fromEpoch2, toEpoch2));
 
     final long from = expected1.getStartTime();
     final long to = expected2.getStartTime();
 
-    this.repository.insert(expected1).await().indefinitely();
-    this.repository.insert(expected2).await().indefinitely();
-    this.repository.insert(remainder3).await().indefinitely();
-    this.repository.insert(remainder4).await().indefinitely();
-    this.repository.insert(remainder5).await().indefinitely();
+    this.reactiveTraceService.insert(expected1).await().indefinitely();
+    this.reactiveTraceService.insert(expected2).await().indefinitely();
+    this.reactiveTraceService.insert(remainder3).await().indefinitely();
+    this.reactiveTraceService.insert(remainder4).await().indefinitely();
+    this.reactiveTraceService.insert(remainder5).await().indefinitely();
 
     final Response response =
         given().pathParam("landscapeToken", landscapeToken1).queryParam("from", from)
-            .queryParam("to", to).when()
-            .get("/v2/landscapes/{landscapeToken}/dynamic");
+            .queryParam("to", to).when().get("/v2/landscapes/{landscapeToken}/dynamic");
 
     final net.explorviz.trace.persistence.dao.Trace[] body =
         response.getBody().as(net.explorviz.trace.persistence.dao.Trace[].class);
@@ -157,32 +146,26 @@ public class TraceResourceApi {
 
     final long outOfRangeFromMilli2 = 1605700822000L;
 
-    final Trace remainder1 =
-        TraceConverter.convertTraceToDao(
-            TraceHelper.randomTrace(5, landscapeToken1, fromEpoch1, toEpoch1));
-    final Trace remainder2 =
-        TraceConverter.convertTraceToDao(
-            TraceHelper.randomTrace(5, landscapeToken1, toEpoch1, fromEpoch2));
-    final Trace remainder3 =
-        TraceConverter.convertTraceToDao(
-            TraceHelper.randomTrace(5, landscapeToken1, fromEpoch2, toEpoch2));
-    final Trace remainder4 =
-        TraceConverter.convertTraceToDao(
-            TraceHelper.randomTrace(5, landscapeToken2, fromEpoch1, toEpoch1));
-    final Trace remainder5 =
-        TraceConverter.convertTraceToDao(
-            TraceHelper.randomTrace(5, landscapeToken2, fromEpoch2, toEpoch2));
+    final Trace remainder1 = TraceConverter
+        .convertTraceToDao(TraceHelper.randomTrace(5, landscapeToken1, fromEpoch1, toEpoch1));
+    final Trace remainder2 = TraceConverter
+        .convertTraceToDao(TraceHelper.randomTrace(5, landscapeToken1, toEpoch1, fromEpoch2));
+    final Trace remainder3 = TraceConverter
+        .convertTraceToDao(TraceHelper.randomTrace(5, landscapeToken1, fromEpoch2, toEpoch2));
+    final Trace remainder4 = TraceConverter
+        .convertTraceToDao(TraceHelper.randomTrace(5, landscapeToken2, fromEpoch1, toEpoch1));
+    final Trace remainder5 = TraceConverter
+        .convertTraceToDao(TraceHelper.randomTrace(5, landscapeToken2, fromEpoch2, toEpoch2));
 
-    this.repository.insert(remainder1).await().indefinitely();
-    this.repository.insert(remainder2).await().indefinitely();
-    this.repository.insert(remainder3).await().indefinitely();
-    this.repository.insert(remainder4).await().indefinitely();
-    this.repository.insert(remainder5).await().indefinitely();
+    this.reactiveTraceService.insert(remainder1).await().indefinitely();
+    this.reactiveTraceService.insert(remainder2).await().indefinitely();
+    this.reactiveTraceService.insert(remainder3).await().indefinitely();
+    this.reactiveTraceService.insert(remainder4).await().indefinitely();
+    this.reactiveTraceService.insert(remainder5).await().indefinitely();
 
-    final Response response =
-        given().pathParam("landscapeToken", landscapeToken1)
-            .queryParam("from", outOfRangeFromMilli2).when()
-            .get("/v2/landscapes/{landscapeToken}/dynamic");
+    final Response response = given().pathParam("landscapeToken", landscapeToken1)
+        .queryParam("from", outOfRangeFromMilli2).when()
+        .get("/v2/landscapes/{landscapeToken}/dynamic");
 
     final net.explorviz.trace.persistence.dao.Trace[] body =
         response.getBody().as(net.explorviz.trace.persistence.dao.Trace[].class);
@@ -200,13 +183,12 @@ public class TraceResourceApi {
     final Trace remainder =
         TraceConverter.convertTraceToDao(TraceHelper.randomTrace(5, landscapeToken));
 
-    this.repository.insert(expected).await().indefinitely();
-    this.repository.insert(remainder).await().indefinitely();
+    this.reactiveTraceService.insert(expected).await().indefinitely();
+    this.reactiveTraceService.insert(remainder).await().indefinitely();
 
-    final Response response =
-        given().pathParam("landscapeToken", expected.getLandscapeToken())
-            .pathParam("traceId", expected.getTraceId()).when()
-            .get("/v2/landscapes/{landscapeToken}/dynamic/{traceId}");
+    final Response response = given().pathParam("landscapeToken", expected.getLandscapeToken())
+        .pathParam("traceId", expected.getTraceId()).when()
+        .get("/v2/landscapes/{landscapeToken}/dynamic/{traceId}");
 
     final net.explorviz.trace.persistence.dao.Trace[] body =
         response.getBody().as(net.explorviz.trace.persistence.dao.Trace[].class);

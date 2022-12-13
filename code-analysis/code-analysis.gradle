@@ -3,13 +3,14 @@ apply plugin: 'checkstyle'
 apply plugin: 'jacoco'
 
 jacocoTestReport {
+
+  executionData { tasks.withType(Test).findAll { it.jacoco.destinationFile.exists() }*.jacoco.destinationFile }
+
   reports {
     xml.enabled true
     html.enabled true
   }
 }
-
-jacocoTestReport.dependsOn test
 
 pmd {
   // Empty ruleset is necessary for exclude-pattern

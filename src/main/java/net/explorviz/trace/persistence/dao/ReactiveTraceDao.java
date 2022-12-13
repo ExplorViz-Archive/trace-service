@@ -4,14 +4,14 @@ import com.datastax.oss.driver.api.mapper.annotations.Dao;
 import com.datastax.oss.driver.api.mapper.annotations.Delete;
 import com.datastax.oss.driver.api.mapper.annotations.Insert;
 import com.datastax.oss.driver.api.mapper.annotations.Select;
-import com.datastax.oss.quarkus.runtime.api.reactive.mapper.MutinyMappedReactiveResultSet;
+import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 
 /**
  * Datastax Dao for a {@link Trace}.
  */
 @Dao
-public interface TraceDaoReactive {
+public interface ReactiveTraceDao {
 
   @Insert
   Uni<Void> insertAsync(Trace trace);
@@ -20,14 +20,13 @@ public interface TraceDaoReactive {
   Uni<Void> deleteAsync(String id);
 
   @Select(customWhereClause = "landscape_token = :id")
-  MutinyMappedReactiveResultSet<Trace> getAllAsync(String id);
+  Multi<Trace> getAllAsync(String id);
 
   @Select(customWhereClause = "landscape_token = :id and start_time >= :startTime and "
       + "start_time <= :endTime")
-  MutinyMappedReactiveResultSet<Trace> getByStartTimeAndEndTime(String id, long startTime,
-      long endTime);
+  Multi<Trace> getByStartTimeAndEndTime(String id, long startTime, long endTime);
 
   @Select(customWhereClause = "landscape_token = :id and trace_id = :traceId")
-  MutinyMappedReactiveResultSet<Trace> getByTraceId(String id, String traceId);
+  Multi<Trace> getByTraceId(String id, String traceId);
 }
 
