@@ -41,7 +41,11 @@ jacocoTestReport {
               "**/TraceMapperBuilder.*",
               "**/SpanDynamicDaoProducer.*",
               "**/TraceMapper.*",
-              "**/TraceMapperProducer.*"
+              "**/TraceMapperProducer.*",
+              "**/SerdeProducer.*",
+              "**/SchemaRegistryClientProducer.*",
+              "**/ShutdownHandler.*",
+              "**/IgnoreRecordTooLargeHandler.*",
       ])
     }))
   }
