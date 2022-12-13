@@ -26,8 +26,8 @@ public final class TraceConverter {
 
       final net.explorviz.trace.persistence.dao.SpanDynamic spanDynamicEntity =
           new net.explorviz.trace.persistence.dao.SpanDynamic(span.getLandscapeToken(),
-              span.getSpanId(), span.getParentSpanId(), span.getTraceId(), startTime,
-              endTime, span.getHashCode());
+              span.getSpanId(), span.getParentSpanId(), span.getTraceId(), startTime, endTime,
+              span.getHashCode());
 
       daoSpanList.add(spanDynamicEntity);
     }
@@ -37,9 +37,8 @@ public final class TraceConverter {
     final long startTime = t.getStartTimeEpochMilli();
     final long endTime = t.getEndTimeEpochMilli();
 
-    return new Trace(t.getLandscapeToken(), t.getTraceId(),
-        startTime, endTime, t.getDuration(), t.getOverallRequestCount(),
-        t.getTraceCount(), daoSpanList);
+    return new Trace(t.getLandscapeToken(), t.getTraceId(), startTime, endTime, t.getDuration(),
+        t.getOverallRequestCount(), t.getTraceCount(), daoSpanList);
   }
 
 }

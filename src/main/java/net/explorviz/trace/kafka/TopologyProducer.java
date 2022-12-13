@@ -4,6 +4,7 @@ import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde;
 import io.quarkus.scheduler.Scheduled;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicInteger;
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import net.explorviz.avro.SpanDynamic;
@@ -34,6 +35,7 @@ import org.slf4j.LoggerFactory;
  * Builds a KafkaStream topology instance with all its transformers. Entry point of the stream
  * analysis.
  */
+@ApplicationScoped
 public class TopologyProducer {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TopologyProducer.class);

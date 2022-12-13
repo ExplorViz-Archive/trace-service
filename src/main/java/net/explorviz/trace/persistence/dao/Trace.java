@@ -34,8 +34,7 @@ public class Trace {
   }
 
   public Trace(final String landscapeToken, final String traceId, final long startTime,
-      final long endTime,
-      final long duration, final int overallRequestCount, final int traceCount,
+      final long endTime, final long duration, final int overallRequestCount, final int traceCount,
       final List<SpanDynamic> spanList) {
     super();
     this.landscapeToken = landscapeToken;
