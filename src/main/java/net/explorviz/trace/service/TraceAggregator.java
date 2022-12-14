@@ -42,9 +42,9 @@ public class TraceAggregator {
   }
 
   /**
-   * Adds a {@link Span} to a given trace. Adjusts start and end times as well as requests
-   * counts of the trace and takes care of new and empty traces. Additionally makes sure that spans
-   * are ordered by their respective start times.
+   * Adds a {@link Span} to a given trace. Adjusts start and end times as well as requests counts of
+   * the trace and takes care of new and empty traces. Additionally makes sure that spans are
+   * ordered by their respective start times.
    *
    * @param aggregate the trace to add the span to
    * @param newSpan   the span to add to the trace
@@ -62,9 +62,15 @@ public class TraceAggregator {
     if (isBefore(newSpan.getStartTimeEpochMilli(), aggregate.getStartTimeEpochMilli())) {
       // Span is the current earliest in the trace
       aggregate.setStartTimeEpochMilli(newSpan.getStartTimeEpochMilli());
-    } else if (isAfter(newSpan.getEndTimeEpochMilli(), aggregate.getEndTimeEpochMilli())) {
+      aggregate.setDuration(
+          durationMs(aggregate.getStartTimeEpochMilli(), aggregate.getEndTimeEpochMilli()));
+    }
+
+    if (isAfter(newSpan.getEndTimeEpochMilli(), aggregate.getEndTimeEpochMilli())) {
       // Span is the current latest in the trace
       aggregate.setEndTimeEpochMilli(newSpan.getEndTimeEpochMilli());
+      aggregate.setDuration(
+          durationMs(aggregate.getStartTimeEpochMilli(), aggregate.getEndTimeEpochMilli()));
     }
 
     return aggregate;

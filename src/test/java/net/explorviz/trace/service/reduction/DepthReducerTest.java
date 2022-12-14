@@ -3,7 +3,7 @@ package net.explorviz.trace.service.reduction;
 import static org.junit.jupiter.api.Assertions.*;
 
 import net.explorviz.avro.Trace;
-import net.explorviz.trace.service.TraceHelper;
+import net.explorviz.trace.helper.TraceHelper;
 import org.junit.jupiter.api.Test;
 
 class DepthReducerTest {
