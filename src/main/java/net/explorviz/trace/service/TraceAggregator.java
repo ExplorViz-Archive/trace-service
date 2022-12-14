@@ -5,7 +5,7 @@ import static net.explorviz.trace.service.TimestampHelper.isAfter;
 import static net.explorviz.trace.service.TimestampHelper.isBefore;
 
 import java.util.LinkedList;
-import net.explorviz.avro.SpanDynamic;
+import net.explorviz.avro.Span;
 import net.explorviz.avro.Trace;
 
 /**
@@ -14,7 +14,7 @@ import net.explorviz.avro.Trace;
 public class TraceAggregator {
 
 
-  private Trace initTrace(final Trace freshTrace, final SpanDynamic firstSpan) {
+  private Trace initTrace(final Trace freshTrace, final Span firstSpan) {
 
     freshTrace.setTraceId(firstSpan.getTraceId());
 
@@ -42,7 +42,7 @@ public class TraceAggregator {
   }
 
   /**
-   * Adds a {@link SpanDynamic} to a given trace. Adjusts start and end times as well as requests
+   * Adds a {@link Span} to a given trace. Adjusts start and end times as well as requests
    * counts of the trace and takes care of new and empty traces. Additionally makes sure that spans
    * are ordered by their respective start times.
    *
@@ -50,7 +50,7 @@ public class TraceAggregator {
    * @param newSpan   the span to add to the trace
    * @return the trace with the span included
    */
-  public Trace aggregate(final Trace aggregate, final SpanDynamic newSpan) {
+  public Trace aggregate(final Trace aggregate, final Span newSpan) {
 
     if (aggregate.getSpanList() == null || aggregate.getSpanList().isEmpty()) {
       return this.initTrace(aggregate, newSpan);

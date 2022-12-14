@@ -1,7 +1,7 @@
 package net.explorviz.trace.kafka;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
-import net.explorviz.avro.SpanDynamic;
+import net.explorviz.avro.Span;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.streams.processor.TimestampExtractor;
 
@@ -18,7 +18,7 @@ public class SpanTimestampKafkaExtractor implements TimestampExtractor {
 
   @Override
   public long extract(final ConsumerRecord<Object, Object> record, final long previousTimestamp) {
-    final SpanDynamic span = (SpanDynamic) record.value();
+    final Span span = (Span) record.value();
 
     if (span != null) {
       // timestamp = Duration.ofNanos(span.getStartTime()).toMillis();

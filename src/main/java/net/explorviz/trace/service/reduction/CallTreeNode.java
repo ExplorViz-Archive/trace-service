@@ -2,7 +2,7 @@ package net.explorviz.trace.service.reduction;
 
 import java.util.HashSet;
 import java.util.Set;
-import net.explorviz.avro.SpanDynamic;
+import net.explorviz.avro.Span;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
@@ -12,13 +12,13 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 public class CallTreeNode {
 
 
-  private final SpanDynamic spanDynamic;
+  private final Span spanDynamic;
   private final Set<CallTreeNode> callees;
 
   private CallTreeNode parent;
 
 
-  public CallTreeNode(final SpanDynamic spanDynamic) {
+  public CallTreeNode(final Span spanDynamic) {
     this.spanDynamic = spanDynamic;
     this.callees = new HashSet<>();
   }
@@ -63,7 +63,7 @@ public class CallTreeNode {
     return this.spanDynamic.getLandscapeToken();
   }
 
-  public SpanDynamic getSpanDynamic() {
+  public Span getSpanDynamic() {
     return this.spanDynamic;
   }
 

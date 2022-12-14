@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
-import net.explorviz.avro.SpanDynamic;
+import net.explorviz.avro.Span;
 import net.explorviz.avro.Trace;
 import net.explorviz.trace.persistence.ReactiveTraceService;
 import net.explorviz.trace.service.TraceAggregator;
@@ -53,7 +53,7 @@ public class TopologyProducer {
   /* default */ boolean discard; // NOCS
 
   @Inject
-  /* default */ SpecificAvroSerde<SpanDynamic> dynamicAvroSerde; // NOCS
+  /* default */ SpecificAvroSerde<Span> dynamicAvroSerde; // NOCS
 
   @Inject
   /* default */ SpecificAvroSerde<Trace> traceAvroSerde; // NOCS
@@ -79,7 +79,7 @@ public class TopologyProducer {
 
     // BEGIN Span conversion
 
-    final KStream<String, SpanDynamic> spanStream =
+    final KStream<String, Span> spanStream =
         builder.stream(this.inTopic, Consumed.with(Serdes.String(), this.dynamicAvroSerde));
 
     // DEBUG Total spans
