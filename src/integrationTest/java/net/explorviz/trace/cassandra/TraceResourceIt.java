@@ -6,6 +6,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
+import net.explorviz.trace.helper.TraceHelper;
 import net.explorviz.trace.persistence.ReactiveTraceService;
 import net.explorviz.trace.persistence.dao.Trace;
 import net.explorviz.trace.service.TraceConverter;

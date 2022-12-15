@@ -77,6 +77,25 @@ public final class TraceHelper {
         .build();
   }
 
+  public static Span randomSpanFixedTimeInterval(final String traceId, final String token,
+      final long fromEpochMilli, final long toEpochMilli) {
+
+    return Span.newBuilder()
+        .setLandscapeToken(token)
+        .setSpanId(RandomStringUtils.random(8, true, true))
+        .setParentSpanId(RandomStringUtils.random(8, true, true))
+        .setTraceId(traceId)
+        .setStartTimeEpochMilli(fromEpochMilli)
+        .setEndTimeEpochMilli(toEpochMilli)
+        .setFullyQualifiedOperationName(randomFqn())
+        .setHostname(RandomStringUtils.randomAlphabetic(10))
+        .setHostIpAddress(randomIp())
+        .setAppName(RandomStringUtils.randomAlphabetic(10))
+        .setAppInstanceId(RandomStringUtils.randomNumeric(3))
+        .setAppLanguage(RandomStringUtils.randomAlphabetic(5))
+        .build();
+  }
+
   /**
    * Creates a random trace such that:
    * <ul>
@@ -96,8 +115,14 @@ public final class TraceHelper {
    */
   public static Trace randomTrace(final int spanAmount) {
 
-    final String traceId = RandomStringUtils.random(6, true, true);
     final String landscapeToken = RandomStringUtils.random(32, true, true);
+
+    return randomTrace(spanAmount, landscapeToken);
+
+  }
+
+  public static Trace randomTrace(final int spanAmount, final String landscapeToken) {
+    final String traceId = RandomStringUtils.random(6, true, true);
 
     long start = 0L;
     long end = 0L;
@@ -116,6 +141,32 @@ public final class TraceHelper {
       if (root == null) {
         root = s;
       }
+      if (start == 0L || TimestampHelper.isBefore(s.getStartTimeEpochMilli(), start)) {
+        start = s.getStartTimeEpochMilli();
+      }
+      if (end == 0L || TimestampHelper.isAfter(s.getEndTimeEpochMilli(), end)) {
+        end = s.getEndTimeEpochMilli();
+      }
+      spans.add(s);
+    }
+
+    return Trace.newBuilder().setLandscapeToken(landscapeToken).setTraceId(traceId)
+        .setStartTimeEpochMilli(start).setEndTimeEpochMilli(end)
+        .setDuration(TimestampHelper.durationMs(start, end)).setSpanList(spans).setTraceCount(1)
+        .setOverallRequestCount(1).build();
+  }
+
+  public static Trace randomTrace(final int spanAmount, final String landscapeToken,
+      final long fromEpochMilli, final long toEpochMilli) {
+
+    final String traceId = RandomStringUtils.random(6, true, true);
+
+    long start = 0L;
+    long end = 0L;
+    final List<Span> spans = new ArrayList<>();
+    for (int i = 0; i < spanAmount; i++) {
+      final Span s =
+          randomSpanFixedTimeInterval(traceId, landscapeToken, fromEpochMilli, toEpochMilli);
       if (start == 0L || TimestampHelper.isBefore(s.getStartTimeEpochMilli(), start)) {
         start = s.getStartTimeEpochMilli();
       }
