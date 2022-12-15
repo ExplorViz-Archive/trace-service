@@ -36,6 +36,7 @@ protocol TraceEventProtocol {
     string appName;
     string appInstanceId;
     string appLanguage;
+    string hashCode = "default-hashcode";
   }
 
 	record Trace {

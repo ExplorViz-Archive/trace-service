@@ -50,6 +50,7 @@ public class CallTreeNode {
   public String toString() {
     return new ToStringBuilder(this, ToStringStyle.JSON_STYLE)
         .append("spanId", this.spanDynamic.getSpanId())
+        .append("hashCode", this.hashCode())
         .append("callees", this.callees)
         .toString();
   }

@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.enterprise.context.ApplicationScoped;
-import net.explorviz.trace.service.HashHelper;
 
 /**
  * {@link SpanReducer} implementation that reduces spans of a {@link CallTree}.
@@ -105,8 +104,8 @@ public class SimpleLoopReducer implements SpanReducer {
           // Check if both paths are equal w.r.t. the hashcodes of referenced methods
           boolean isEqualPath = true;
           for (int k = 0; k < uToLca.size() && isEqualPath; k++) {
-            isEqualPath = HashHelper.createHash(vToLca.get(k).getSpanDynamic())
-                .equals(HashHelper.createHash(uToLca.get(k).getSpanDynamic()));
+            isEqualPath = vToLca.get(k).getSpanDynamic().getHashCode()
+                .equals(uToLca.get(k).getSpanDynamic().getHashCode());
           }
 
           // v can be reduced

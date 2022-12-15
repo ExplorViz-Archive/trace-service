@@ -150,12 +150,20 @@ public final class TraceHelper {
     long start = root.getStartTimeEpochMilli();
     long end = root.getEndTimeEpochMilli();
 
+    // Generate 'length' hashcodes
+    final ArrayList<String> hashcodes = new ArrayList<>(length);
+    for (int l = 0; l < length; l++) {
+      hashcodes.add(RandomStringUtils.random(256, true, true));
+    }
+
     for (int it = 0; it < iterations; it++) {
       final Span iterationRoot = randomSpan(traceId, landscapeToken, root.getSpanId());
       String parentId = iterationRoot.getSpanId();
+      iterationRoot.setHashCode(hashcodes.get(0));
       spans.add(iterationRoot);
       for (int l = 1; l < length; l++) {
         final Span next = randomSpan(traceId, landscapeToken, parentId);
+        next.setHashCode(hashcodes.get(l));
         if (TimestampHelper.isBefore(next.getStartTimeEpochMilli(), start)) {
           start = next.getStartTimeEpochMilli();
         }
@@ -216,7 +224,13 @@ public final class TraceHelper {
 
     final List<Span> spans = new ArrayList<>(recursions * size + 1);
 
+    final ArrayList<String> hashcodes = new ArrayList<>(size);
+    for (int l = 0; l < size; l++) {
+      hashcodes.add(RandomStringUtils.random(256, true, true));
+    }
+
     final Span root = randomSpan(traceId, landscapeToken, "");
+    root.setHashCode(hashcodes.get(0));
     spans.add(root);
     String parentId = root.getSpanId();
     long start = root.getStartTimeEpochMilli();
@@ -224,6 +238,7 @@ public final class TraceHelper {
 
     for (int i = 1; i <= recursions * size; i++) {
       final Span next = randomSpan(traceId, landscapeToken, parentId);
+      next.setHashCode(hashcodes.get(i % size));
       if (TimestampHelper.isBefore(next.getStartTimeEpochMilli(), start)) {
         start = next.getStartTimeEpochMilli();
       }

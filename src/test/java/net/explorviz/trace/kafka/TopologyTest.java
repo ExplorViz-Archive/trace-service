@@ -17,6 +17,7 @@ import net.explorviz.avro.Span;
 import net.explorviz.trace.helper.TraceHelper;
 import net.explorviz.trace.persistence.ReactiveTraceService;
 import net.explorviz.trace.persistence.dao.Trace;
+import net.explorviz.trace.service.HashHelper;
 import net.explorviz.trace.service.TimestampHelper;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KeyValue;
@@ -125,6 +126,8 @@ class TopologyTest {
 
     Assertions.assertEquals(testSpan.getEndTimeEpochMilli(),
         mockSpanDB.get(0).getSpanList().get(0).getEndTime());
+
+    Assertions.assertEquals(HashHelper.createHash(testSpan), mockSpanDB.get(0).getSpanList().get(0).getHashCode());
   }
 
   @Test
