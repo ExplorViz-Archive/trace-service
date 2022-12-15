@@ -7,9 +7,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
-import net.explorviz.avro.SpanDynamic;
+import net.explorviz.avro.Span;
 import net.explorviz.avro.Trace;
 import net.explorviz.trace.persistence.ReactiveTraceService;
+import net.explorviz.trace.service.HashHelper;
 import net.explorviz.trace.service.TraceAggregator;
 import net.explorviz.trace.service.TraceConverter;
 import net.explorviz.trace.service.reduction.CallTree;
@@ -53,7 +54,7 @@ public class TopologyProducer {
   /* default */ boolean discard; // NOCS
 
   @Inject
-  /* default */ SpecificAvroSerde<SpanDynamic> dynamicAvroSerde; // NOCS
+  /* default */ SpecificAvroSerde<Span> dynamicAvroSerde; // NOCS
 
   @Inject
   /* default */ SpecificAvroSerde<Trace> traceAvroSerde; // NOCS
@@ -79,11 +80,17 @@ public class TopologyProducer {
 
     // BEGIN Span conversion
 
-    final KStream<String, SpanDynamic> spanStream =
+    final KStream<String, Span> spanStream =
         builder.stream(this.inTopic, Consumed.with(Serdes.String(), this.dynamicAvroSerde));
 
+    final KStream<String, Span> spanStreamWithHashCodes = spanStream.mapValues(
+        (readOnlyKey, value) -> {
+          value.setHashCode(HashHelper.createHash(value));
+          return value;
+        });
+
     // DEBUG Total spans
-    spanStream.foreach((key, value) -> {
+    spanStreamWithHashCodes.foreach((key, value) -> {
       this.lastReceivedTotalSpans.incrementAndGet();
     });
 
@@ -97,7 +104,7 @@ public class TopologyProducer {
     final TraceAggregator aggregator = new TraceAggregator();
 
     // Group by landscapeToken::TraceId
-    final KTable<Windowed<String>, Trace> traceTable = spanStream
+    final KTable<Windowed<String>, Trace> traceTable = spanStreamWithHashCodes
         .groupBy((k, v) -> v.getLandscapeToken() + "::" + v.getTraceId(),
             Grouped.with(Serdes.String(), this.dynamicAvroSerde))
         .windowedBy(traceWindow)

@@ -4,17 +4,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
+import net.explorviz.avro.Span;
+import net.explorviz.trace.helper.TraceHelper;
 import net.explorviz.trace.persistence.dao.SpanDynamic;
 import net.explorviz.trace.persistence.dao.Trace;
 import org.junit.jupiter.api.Test;
 
-public class CallTreeConverterTest {
+public class TraceConverterTest {
 
   @Test
   void testSimpleTraceConversion() {
 
     final net.explorviz.avro.Trace testObject = TraceHelper.randomTrace(1);
-    final net.explorviz.avro.SpanDynamic testObjectSpan = testObject.getSpanList().get(0);
+    final Span testObjectSpan = testObject.getSpanList().get(0);
 
     final Trace expected = new Trace();
     expected.setLandscapeToken(testObject.getLandscapeToken());
@@ -27,13 +29,14 @@ public class CallTreeConverterTest {
 
     final SpanDynamic expectedSpan = new SpanDynamic();
     expectedSpan.setLandscapeToken(testObjectSpan.getLandscapeToken());
+
     expectedSpan.setTraceId(testObjectSpan.getTraceId());
     expectedSpan.setSpanId(testObjectSpan.getSpanId());
     expectedSpan.setParentSpanId(testObjectSpan.getParentSpanId());
     expectedSpan
         .setStartTime(testObjectSpan.getStartTimeEpochMilli());
     expectedSpan.setEndTime(testObjectSpan.getEndTimeEpochMilli());
-    expectedSpan.setHashCode(testObjectSpan.getHashCode());
+    expectedSpan.setHashCode(HashHelper.createHash(testObjectSpan));
 
     final List<SpanDynamic> expectedSpanList = new ArrayList<>();
     expectedSpanList.add(expectedSpan);
@@ -61,7 +64,7 @@ public class CallTreeConverterTest {
 
     final List<SpanDynamic> expectedSpanList = new ArrayList<>();
 
-    for (final net.explorviz.avro.SpanDynamic testObjectSpan : testObject.getSpanList()) {
+    for (Span testObjectSpan : testObject.getSpanList()) {
 
       final SpanDynamic expectedSpan = new SpanDynamic();
       expectedSpan.setLandscapeToken(testObjectSpan.getLandscapeToken());
@@ -72,7 +75,7 @@ public class CallTreeConverterTest {
           .setStartTime(testObjectSpan.getStartTimeEpochMilli());
       expectedSpan
           .setEndTime(testObjectSpan.getEndTimeEpochMilli());
-      expectedSpan.setHashCode(testObjectSpan.getHashCode());
+      expectedSpan.setHashCode(HashHelper.createHash(testObjectSpan));
 
       expectedSpanList.add(expectedSpan);
     }

@@ -22,17 +22,23 @@ protocol TraceEventProtocol {
 		LandscapeToken token;
 		string clonedToken;
 	}
-	
-	record SpanDynamic {
-		string landscapeToken;
-		string spanId;
-		string parentSpanId = "";
-		string traceId;
-		long startTimeEpochMilli;
+
+	record Span {
+  	string landscapeToken;
+    string spanId;
+    string parentSpanId;
+    string traceId;
+    long startTimeEpochMilli;
     long endTimeEpochMilli;
-		string hashCode;
-	}
-	
+    string fullyQualifiedOperationName;
+    string hostname;
+    string hostIpAddress;
+    string appName;
+    string appInstanceId;
+    string appLanguage;
+    string hashCode = "default-hashcode";
+  }
+
 	record Trace {
 		string landscapeToken;
 		string traceId;
@@ -41,6 +47,6 @@ protocol TraceEventProtocol {
 		long duration;
 		int overallRequestCount = 1;
 		int traceCount = 1;
-		array<SpanDynamic> spanList;
+		array<Span> spanList;
 	}
 }

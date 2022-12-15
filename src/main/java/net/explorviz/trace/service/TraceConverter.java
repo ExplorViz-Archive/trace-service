@@ -2,7 +2,8 @@ package net.explorviz.trace.service;
 
 import java.util.ArrayList;
 import java.util.List;
-import net.explorviz.avro.SpanDynamic;
+import net.explorviz.avro.Span;
+import net.explorviz.trace.persistence.dao.SpanDynamic;
 import net.explorviz.trace.persistence.dao.Trace;
 
 /**
@@ -17,17 +18,17 @@ public final class TraceConverter {
   public static Trace convertTraceToDao(final net.explorviz.avro.Trace t) {
     // Build Dao SpanList
 
-    final List<net.explorviz.trace.persistence.dao.SpanDynamic> daoSpanList = new ArrayList<>();
+    final List<SpanDynamic> daoSpanList = new ArrayList<>();
 
-    for (final SpanDynamic span : t.getSpanList()) {
+    for (final Span span : t.getSpanList()) {
 
       final long startTime = span.getStartTimeEpochMilli();
       final long endTime = span.getEndTimeEpochMilli();
 
-      final net.explorviz.trace.persistence.dao.SpanDynamic spanDynamicEntity =
-          new net.explorviz.trace.persistence.dao.SpanDynamic(span.getLandscapeToken(),
+      final SpanDynamic spanDynamicEntity =
+          new SpanDynamic(span.getLandscapeToken(),
               span.getSpanId(), span.getParentSpanId(), span.getTraceId(), startTime, endTime,
-              span.getHashCode());
+              HashHelper.createHash(span));
 
       daoSpanList.add(spanDynamicEntity);
     }

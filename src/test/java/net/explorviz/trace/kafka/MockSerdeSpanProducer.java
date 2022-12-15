@@ -11,29 +11,29 @@ import java.util.Map;
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
-import net.explorviz.avro.SpanDynamic;
+import net.explorviz.avro.Span;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 /**
  * Returns an injectable {@link SpecificAvroSerde}.
  */
 @Dependent
-public class MockSerdeDynamicProducer {
+public class MockSerdeSpanProducer {
 
   @ConfigProperty(name = "explorviz.kafka-streams.topics.in")
-  /* default */ String inTopicStructure; // NOCS
+  /* default */ String inTopicSpans; // NOCS
 
   @Inject
   /* default */ SchemaRegistryClient registry; // NOCS
 
   @Produces
   @IfBuildProfile("test")
-  public SpecificAvroSerde<SpanDynamic> produceMockSpecificAvroSerde()
+  public SpecificAvroSerde<Span> produceMockSpecificAvroSerde()
       throws IOException, RestClientException {
 
-    this.registry.register(this.inTopicStructure + "-value", new AvroSchema(SpanDynamic.SCHEMA$));
+    this.registry.register(this.inTopicSpans + "-value", new AvroSchema(Span.SCHEMA$));
 
-    final SpecificAvroSerde<SpanDynamic> valueSerde = new SpecificAvroSerde<>(this.registry);
+    final SpecificAvroSerde<Span> valueSerde = new SpecificAvroSerde<>(this.registry);
     valueSerde.configure(
         Map.of(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, "http://registry:1234"),
         false);

@@ -13,9 +13,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import javax.inject.Inject;
-import net.explorviz.avro.SpanDynamic;
+import net.explorviz.avro.Span;
+import net.explorviz.trace.helper.TraceHelper;
 import net.explorviz.trace.persistence.ReactiveTraceService;
 import net.explorviz.trace.persistence.dao.Trace;
+import net.explorviz.trace.service.HashHelper;
 import net.explorviz.trace.service.TimestampHelper;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KeyValue;
@@ -40,7 +42,7 @@ class TopologyTest {
 
   private TopologyTestDriver testDriver;
 
-  private TestInputTopic<String, SpanDynamic> inputTopic;
+  private TestInputTopic<String, Span> inputTopic;
 
   @ConfigProperty(name = "explorviz.kafka-streams.topics.in")
   /* default */ String inTopic;
@@ -55,7 +57,7 @@ class TopologyTest {
   Topology topology;
 
   @Inject
-  SpecificAvroSerde<SpanDynamic> spanDynamicSerde; // NOCS
+  SpecificAvroSerde<Span> spanSerde; // NOCS
 
   ReactiveTraceService reactiveTraceService;
 
@@ -74,13 +76,13 @@ class TopologyTest {
     QuarkusMock.installMockForType(this.reactiveTraceService, ReactiveTraceService.class);
 
     this.inputTopic = this.testDriver.createInputTopic(this.inTopic, Serdes.String().serializer(),
-        this.spanDynamicSerde.serializer());
+        this.spanSerde.serializer());
 
   }
 
   @AfterEach
   void afterEach() {
-    this.spanDynamicSerde.close();
+    this.spanSerde.close();
     this.testDriver.getAllStateStores().forEach((k, v) -> v.close());
     this.testDriver.close();
   }
@@ -100,9 +102,7 @@ class TopologyTest {
     }).when(this.reactiveTraceService)
         .insert(ArgumentMatchers.any(net.explorviz.trace.persistence.dao.Trace.class));
 
-    // QuarkusMock.installMockForType(this.traceRepository, TraceRepository.class);
-
-    final SpanDynamic testSpan = TraceHelper.randomSpan();
+    final Span testSpan = TraceHelper.randomSpan();
 
     this.inputTopic.pipeInput(testSpan.getTraceId(), testSpan);
     this.forceSuppression(testSpan.getStartTimeEpochMilli());
@@ -127,8 +127,7 @@ class TopologyTest {
     Assertions.assertEquals(testSpan.getEndTimeEpochMilli(),
         mockSpanDB.get(0).getSpanList().get(0).getEndTime());
 
-    Assertions.assertEquals(testSpan.getHashCode(),
-        mockSpanDB.get(0).getSpanList().get(0).getHashCode());
+    Assertions.assertEquals(HashHelper.createHash(testSpan), mockSpanDB.get(0).getSpanList().get(0).getHashCode());
   }
 
   @Test
@@ -146,7 +145,7 @@ class TopologyTest {
 
     final net.explorviz.avro.Trace testTrace = TraceHelper.randomTrace(spansPerTrace);
     long t = testTrace.getStartTimeEpochMilli();
-    for (final SpanDynamic s : testTrace.getSpanList()) {
+    for (final Span s : testTrace.getSpanList()) {
       t += 1;
       s.setStartTimeEpochMilli(t);
       this.inputTopic.pipeInput(s.getTraceId(), s);
@@ -174,12 +173,12 @@ class TopologyTest {
     final int traceAmount = 20;
 
     // Create multiple traces that happen in parallel
-    final List<KeyValue<String, SpanDynamic>> traces = new ArrayList<>();
+    final List<KeyValue<String, Span>> traces = new ArrayList<>();
     final long baseTime = TraceHelper.randomTrace(1).getStartTimeEpochMilli();
     for (int i = 0; i < traceAmount; i++) {
       final net.explorviz.avro.Trace testTrace = TraceHelper.randomTrace(spansPerTrace);
       long t = baseTime;
-      for (final SpanDynamic s : testTrace.getSpanList()) {
+      for (final Span s : testTrace.getSpanList()) {
         // Keep spans in one window
         t += 2;
         s.setStartTimeEpochMilli(t);
@@ -224,7 +223,7 @@ class TopologyTest {
     final net.explorviz.avro.Trace testTrace = TraceHelper.randomTrace(spansPerTrace);
     long ts = TraceHelper.randomTrace(1).getStartTimeEpochMilli();
     for (int i = 0; i < testTrace.getSpanList().size(); i++) {
-      final SpanDynamic s = testTrace.getSpanList().get(i);
+      final Span s = testTrace.getSpanList().get(i);
       if (i < testTrace.getSpanList().size() - 1) {
         ts += 1;
       } else {
@@ -250,7 +249,7 @@ class TopologyTest {
    */
   private void forceSuppression(final long lastTimestamp) {
     final Duration secs = Duration.ofMillis(this.windowSizeInMs).plusMillis(this.graceSizeInMs);
-    final SpanDynamic dummy = TraceHelper.randomSpan();
+    final Span dummy = TraceHelper.randomSpan();
 
     final Instant ts = TimestampHelper.toInstant(lastTimestamp).plus(secs);
     dummy.setStartTimeEpochMilli(TimestampHelper.toTimestamp(ts));

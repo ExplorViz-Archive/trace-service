@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import net.explorviz.avro.SpanDynamic;
+import net.explorviz.avro.Span;
 import net.explorviz.avro.Trace;
 import net.explorviz.trace.service.TraceAggregator;
 
@@ -29,7 +29,7 @@ public final class CallTreeConverter {
     final List<CallTreeNode> orphans = new ArrayList<>();
     CallTreeNode root = null;
 
-    for (final SpanDynamic sd : trace.getSpanList()) {
+    for (final Span sd : trace.getSpanList()) {
       final String spanId = sd.getSpanId();
       final CallTreeNode node = new CallTreeNode(sd);
       knownNodes.put(spanId, node);
