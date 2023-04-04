@@ -96,10 +96,10 @@ class TopologyTest {
     final List<Trace> mockSpanDB = new ArrayList<>();
 
     Mockito.doAnswer(i -> {
-      final Trace inserted = i.getArgument(0, Trace.class);
-      mockSpanDB.add(inserted);
-      return Uni.createFrom().nullItem();
-    }).when(this.reactiveTraceService)
+          final Trace inserted = i.getArgument(0, Trace.class);
+          mockSpanDB.add(inserted);
+          return Uni.createFrom().nullItem();
+        }).when(this.reactiveTraceService)
         .insert(ArgumentMatchers.any(net.explorviz.trace.persistence.dao.Trace.class));
 
     final Span testSpan = TraceHelper.randomSpan();
@@ -127,7 +127,8 @@ class TopologyTest {
     Assertions.assertEquals(testSpan.getEndTimeEpochMilli(),
         mockSpanDB.get(0).getSpanList().get(0).getEndTime());
 
-    Assertions.assertEquals(HashHelper.createHash(testSpan), mockSpanDB.get(0).getSpanList().get(0).getHashCode());
+    Assertions.assertEquals(HashHelper.createHash(testSpan),
+        mockSpanDB.get(0).getSpanList().get(0).getHashCode());
   }
 
   @Test
@@ -162,11 +163,11 @@ class TopologyTest {
     final Map<String, Trace> mockSpanDB = new HashMap<>();
 
     Mockito.doAnswer(i -> {
-      final Trace inserted = i.getArgument(0, Trace.class);
-      final String key = inserted.getLandscapeToken() + "::" + inserted.getTraceId();
-      mockSpanDB.put(key, inserted);
-      return Uni.createFrom().nullItem();
-    }).when(this.reactiveTraceService)
+          final Trace inserted = i.getArgument(0, Trace.class);
+          final String key = inserted.getLandscapeToken() + "::" + inserted.getTraceId();
+          mockSpanDB.put(key, inserted);
+          return Uni.createFrom().nullItem();
+        }).when(this.reactiveTraceService)
         .insert(ArgumentMatchers.any(net.explorviz.trace.persistence.dao.Trace.class));
 
     final int spansPerTrace = 20;
@@ -203,18 +204,18 @@ class TopologyTest {
     final Map<String, Trace> mockSpanDB = new HashMap<>();
 
     Mockito.doAnswer(i -> {
-      final Trace inserted = i.getArgument(0, Trace.class);
-      final String key = inserted.getLandscapeToken() + "::" + inserted.getTraceId();
-      if (LOGGER.isInfoEnabled()) {
-        LOGGER.info("test span size " + inserted.getSpanList().size());
-      }
-      // mockSpanDB.computeIfPresent(key, (k, v) -> {
-      // v.getSpanList().addAll(inserted.getSpanList());
-      // return v;
-      // });
-      mockSpanDB.putIfAbsent(key, inserted);
-      return Uni.createFrom().nullItem();
-    }).when(this.reactiveTraceService)
+          final Trace inserted = i.getArgument(0, Trace.class);
+          final String key = inserted.getLandscapeToken() + "::" + inserted.getTraceId();
+          if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("test span size " + inserted.getSpanList().size());
+          }
+          // mockSpanDB.computeIfPresent(key, (k, v) -> {
+          // v.getSpanList().addAll(inserted.getSpanList());
+          // return v;
+          // });
+          mockSpanDB.putIfAbsent(key, inserted);
+          return Uni.createFrom().nullItem();
+        }).when(this.reactiveTraceService)
         .insert(ArgumentMatchers.any(net.explorviz.trace.persistence.dao.Trace.class));
 
     // push spans on topic

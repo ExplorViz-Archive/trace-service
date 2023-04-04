@@ -83,8 +83,8 @@ public class TopologyProducer {
     final KStream<String, Span> spanStream =
         builder.stream(this.inTopic, Consumed.with(Serdes.String(), this.dynamicAvroSerde));
 
-    final KStream<String, Span> spanStreamWithHashCodes = spanStream.mapValues(
-        (readOnlyKey, value) -> {
+    final KStream<String, Span> spanStreamWithHashCodes =
+        spanStream.mapValues((readOnlyKey, value) -> {
           value.setHashCode(HashHelper.createHash(value));
           return value;
         });
@@ -98,19 +98,20 @@ public class TopologyProducer {
       return builder.build();
     }
 
-    final TimeWindows traceWindow = TimeWindows.ofSizeAndGrace(
-        Duration.ofMillis(this.windowSizeInMs), Duration.ofMillis(this.graceSizeInMs));
+    final TimeWindows traceWindow =
+        TimeWindows.ofSizeAndGrace(Duration.ofMillis(this.windowSizeInMs),
+            Duration.ofMillis(this.graceSizeInMs));
 
     final TraceAggregator aggregator = new TraceAggregator();
 
     // Group by landscapeToken::TraceId
-    final KTable<Windowed<String>, Trace> traceTable = spanStreamWithHashCodes
-        .groupBy((k, v) -> v.getLandscapeToken() + "::" + v.getTraceId(),
-            Grouped.with(Serdes.String(), this.dynamicAvroSerde))
-        .windowedBy(traceWindow)
-        .aggregate(Trace::new, (key, value, aggregate) -> aggregator.aggregate(aggregate, value),
-            Materialized.with(Serdes.String(), this.traceAvroSerde))
-        .suppress(Suppressed.untilWindowCloses(Suppressed.BufferConfig.unbounded()));
+    final KTable<Windowed<String>, Trace> traceTable =
+        spanStreamWithHashCodes.groupBy((k, v) -> v.getLandscapeToken() + "::" + v.getTraceId(),
+                Grouped.with(Serdes.String(), this.dynamicAvroSerde)).windowedBy(traceWindow)
+            .aggregate(Trace::new,
+                (key, value, aggregate) -> aggregator.aggregate(aggregate, value),
+                Materialized.with(Serdes.String(), this.traceAvroSerde))
+            .suppress(Suppressed.untilWindowCloses(Suppressed.BufferConfig.unbounded()));
 
     final KStream<String, Trace> traceStream =
         traceTable.toStream().selectKey((k, v) -> v.getLandscapeToken() + "::" + k);
@@ -175,10 +176,9 @@ public class TopologyProducer {
       if (this.discard) {
         LOGGER.debug("Received and discarded {} spans.", totalSpans);
       } else {
-        LOGGER.debug(
-            "Received {} spans: {} trace reconstructed in"
-                + " {} time window, the Spans of {} traces have been reduced.",
-            totalSpans, reconstructedTraces, this.windowSizeInMs, spanReducedTraces);
+        LOGGER.debug("Received {} spans: {} trace reconstructed in"
+                + " {} time window, the Spans of {} traces have been reduced.", totalSpans,
+            reconstructedTraces, this.windowSizeInMs, spanReducedTraces);
       }
     }
   }

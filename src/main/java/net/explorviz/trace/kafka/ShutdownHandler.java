@@ -41,9 +41,8 @@ public class ShutdownHandler {
       if (newState.equals(State.ERROR)) {
 
         if (LOGGER.isErrorEnabled()) {
-          LOGGER.error(
-              "Kafka Streams thread died. "
-                  + "Are Kafka topic initialized? Quarkus application will shut down.");
+          LOGGER.error("Kafka Streams thread died. "
+              + "Are Kafka topic initialized? Quarkus application will shut down.");
         }
 
         LOGGER.error("About to system exit due to Kafka Streams Error.");

@@ -19,15 +19,14 @@ public class SpanDynamic {
   private long startTime;
 
   private long endTime;
-  private String hashCode;// NOPMD
+  private String hashCode; // NOPMD
 
   public SpanDynamic() {
     // for serialization
   }
 
   public SpanDynamic(final String landscapeToken, final String spanId, final String parentSpanId,
-      final String traceId,
-      final long startTime, final long endTime, final String hashCode) {
+      final String traceId, final long startTime, final long endTime, final String hashCode) {
     super();
     this.landscapeToken = landscapeToken;
     this.spanId = spanId;
@@ -99,8 +98,7 @@ public class SpanDynamic {
   @Override
   public int hashCode() {
     return Objects.hash(this.endTime, this.hashCode, this.landscapeToken, this.parentSpanId,
-        this.spanId,
-        this.startTime, this.traceId);
+        this.spanId, this.startTime, this.traceId);
   }
 
   @Override // NOCS

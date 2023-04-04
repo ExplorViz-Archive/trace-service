@@ -9,7 +9,7 @@ import java.time.Instant;
  */
 public final class TimestampHelper {
 
-  private TimestampHelper() { /* Nothing to do */}
+  private TimestampHelper() {}
 
   /**
    * Checks if the first timestamp is before than the second or the same.

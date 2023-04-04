@@ -26,9 +26,8 @@ public final class TraceConverter {
       final long endTime = span.getEndTimeEpochMilli();
 
       final SpanDynamic spanDynamicEntity =
-          new SpanDynamic(span.getLandscapeToken(),
-              span.getSpanId(), span.getParentSpanId(), span.getTraceId(), startTime, endTime,
-              HashHelper.createHash(span));
+          new SpanDynamic(span.getLandscapeToken(), span.getSpanId(), span.getParentSpanId(),
+              span.getTraceId(), startTime, endTime, HashHelper.createHash(span));
 
       daoSpanList.add(spanDynamicEntity);
     }

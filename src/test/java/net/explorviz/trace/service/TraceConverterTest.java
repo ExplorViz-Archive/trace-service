@@ -33,8 +33,7 @@ public class TraceConverterTest {
     expectedSpan.setTraceId(testObjectSpan.getTraceId());
     expectedSpan.setSpanId(testObjectSpan.getSpanId());
     expectedSpan.setParentSpanId(testObjectSpan.getParentSpanId());
-    expectedSpan
-        .setStartTime(testObjectSpan.getStartTimeEpochMilli());
+    expectedSpan.setStartTime(testObjectSpan.getStartTimeEpochMilli());
     expectedSpan.setEndTime(testObjectSpan.getEndTimeEpochMilli());
     expectedSpan.setHashCode(HashHelper.createHash(testObjectSpan));
 
@@ -71,10 +70,8 @@ public class TraceConverterTest {
       expectedSpan.setTraceId(testObjectSpan.getTraceId());
       expectedSpan.setSpanId(testObjectSpan.getSpanId());
       expectedSpan.setParentSpanId(testObjectSpan.getParentSpanId());
-      expectedSpan
-          .setStartTime(testObjectSpan.getStartTimeEpochMilli());
-      expectedSpan
-          .setEndTime(testObjectSpan.getEndTimeEpochMilli());
+      expectedSpan.setStartTime(testObjectSpan.getStartTimeEpochMilli());
+      expectedSpan.setEndTime(testObjectSpan.getEndTimeEpochMilli());
       expectedSpan.setHashCode(HashHelper.createHash(testObjectSpan));
 
       expectedSpanList.add(expectedSpan);

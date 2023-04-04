@@ -32,7 +32,8 @@ class TraceAggregatorTest {
     assertTrue(traceWithSpan.getSpanList().contains(fresh), "Trace does not contain first span");
     assertEquals(fresh.getStartTimeEpochMilli(), traceWithSpan.getStartTimeEpochMilli(),
         "Start time does not match");
-    assertEquals(fresh.getEndTimeEpochMilli(), traceWithSpan.getEndTimeEpochMilli(), "End time does not match");
+    assertEquals(fresh.getEndTimeEpochMilli(), traceWithSpan.getEndTimeEpochMilli(),
+        "End time does not match");
   }
 
   @Test
