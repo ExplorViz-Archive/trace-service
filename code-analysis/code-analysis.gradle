@@ -18,7 +18,7 @@ pmd {
   ruleSets = []
   ruleSetFiles = files("code-analysis/pmd.xml")
   ignoreFailures = false
-  toolVersion = "6.41.0"
+  toolVersion = "6.53.0"
 }
 
 checkstyle {
@@ -26,7 +26,7 @@ checkstyle {
   configFile = file("code-analysis/checkstyle.xml")
   maxWarnings = 0
   ignoreFailures = false
-  toolVersion = "8.12"
+  toolVersion = "10.6.0"
 }
 
 task checkstyle {

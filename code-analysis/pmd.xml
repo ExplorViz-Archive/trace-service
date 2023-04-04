@@ -11,7 +11,6 @@
   <exclude-pattern>.*/build/.*</exclude-pattern>
   <exclude-pattern>.*/src/test/.*</exclude-pattern>
   <exclude-pattern>.*/src/integrationTest/.*</exclude-pattern>
-  <exclude-pattern>.*/src/apiTest/.*</exclude-pattern>
 
   <rule ref="category/java/bestpractices.xml">
     <exclude name="AccessorMethodGeneration" />
@@ -49,7 +48,6 @@
     
 
   <rule ref="category/java/errorprone.xml">
-    <exclude name="BeanMembersShouldSerialize" />
     <exclude name="DataflowAnomalyAnalysis" />
   </rule>
 
@@ -61,9 +59,7 @@
 
   <rule ref="category/java/performance.xml">
     <exclude name="SimplifyStartsWith" />
-    <exclude name="AvoidInstantiatingObjectsInLoops" />
   </rule>
-  
   <rule ref="category/java/security.xml">
   </rule>
 
