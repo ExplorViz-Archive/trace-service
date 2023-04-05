@@ -58,6 +58,7 @@
   </rule>
 
   <rule ref="category/java/performance.xml">
+    <exclude name="AvoidInstantiatingObjectsInLoops" />
     <exclude name="SimplifyStartsWith" />
   </rule>
   <rule ref="category/java/security.xml">
