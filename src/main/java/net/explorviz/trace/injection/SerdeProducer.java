@@ -23,6 +23,13 @@ public class SerdeProducer {
   @ConfigProperty(name = "quarkus.kafka-streams.schema-registry-url")
   /* default */ String schemaRegistryUrl; // NOCS
 
+
+  /**
+   * Produces a SpecificAvroSerde for a specific record type.
+   *
+   * @param <T> the specific record type to produce a serde for.
+   * @return a SpecificAvroSerde for the specified record type.
+   */
   @Produces
   @DefaultBean
   public <T extends SpecificRecord> SpecificAvroSerde<T> produceSpecificAvroSerde() {
@@ -31,7 +38,6 @@ public class SerdeProducer {
         Map.of(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, this.schemaRegistryUrl),
         false);
     return valueSerde;
-
   }
 }
 

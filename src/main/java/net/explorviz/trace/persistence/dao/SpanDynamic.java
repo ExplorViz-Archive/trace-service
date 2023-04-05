@@ -25,6 +25,17 @@ public class SpanDynamic {
     // for serialization
   }
 
+  /**
+   * Constructs a new instance of {@code SpanDynamic} with the specified parameters.
+   *
+   * @param landscapeToken the landscape token of the span
+   * @param spanId the ID of the span
+   * @param parentSpanId the ID of the span's parent span
+   * @param traceId the ID of the trace to which the span belongs
+   * @param startTime the start time of the span in UNIX timestamp format (milliseconds)
+   * @param endTime the end time of the span in UNIX timestamp format (milliseconds)
+   * @param hashCode the hash code of the span
+   */
   public SpanDynamic(final String landscapeToken, final String spanId, final String parentSpanId,
       final String traceId, final long startTime, final long endTime, final String hashCode) {
     super();

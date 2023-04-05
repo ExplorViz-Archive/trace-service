@@ -33,6 +33,18 @@ public class Trace {
     // for serialization
   }
 
+  /**
+   * Creates a Trace object that represents a trace of spans in a distributed system.
+   *
+   * @param landscapeToken the token of the landscape where the trace occurred
+   * @param traceId the ID of the trace
+   * @param startTime the start time of the trace (in milliseconds since the Unix epoch)
+   * @param endTime the end time of the trace (in milliseconds since the Unix epoch)
+   * @param duration the duration of the trace (in milliseconds)
+   * @param overallRequestCount the overall number of requests that occurred during the trace
+   * @param traceCount Count of the trace
+   * @param spanList the list of spans in the trace
+   */
   public Trace(final String landscapeToken, final String traceId, final long startTime,
       final long endTime, final long duration, final int overallRequestCount, final int traceCount,
       final List<SpanDynamic> spanList) {

@@ -21,6 +21,12 @@ public class DepthReducer implements SpanReducer {
     // for injection
   }
 
+  /**
+   * Creates a new DepthReducer with the specified depth limit.
+   *
+   * @param depthLimit the maximum depth allowed for the tree, must be at least 1
+   * @throws IllegalArgumentException if the depth limit is less than 1
+   */
   public DepthReducer(final int depthLimit) {
     this.depthLimit = depthLimit;
     if (this.depthLimit < 0) {

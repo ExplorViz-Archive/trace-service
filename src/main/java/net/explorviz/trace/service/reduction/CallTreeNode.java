@@ -23,6 +23,12 @@ public class CallTreeNode {
     this.callees = new HashSet<>();
   }
 
+  /**
+   * Returns the level of the current node in the tree structure.
+   *     If the current node is the root node, the level is 0.
+   *
+   * @return the level of the current node in the tree structure.
+   */
   public int getLevel() {
     if (this.parent == null) {
       return 0;

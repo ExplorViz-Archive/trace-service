@@ -59,6 +59,13 @@ public final class TimestampHelper {
     return isAfter(one, two) || isEqual(one, two);
   }
 
+  /**
+   * Checks equality of two given timestamps.
+   *
+   * @param one the first long value representing a point in time (UNIX timestamp in milliseconds).
+   * @param two the second long value representing a point in time (UNIX timestamp in milliseconds).
+   * @return true if the two provided long values represent the same point in time, false otherwise.
+   */
   public static boolean isEqual(final long one, final long two) {
     final Instant f = toInstant(one);
     final Instant s = toInstant(two);

@@ -73,6 +73,12 @@ public class TopologyProducer {
   private final AtomicInteger reconstructedTracesCount = new AtomicInteger(0);
   private final AtomicInteger spanReducedTracesCount = new AtomicInteger(0);
 
+  /**
+   * Builds a Kafka Streams topology to process and aggregate spans into traces,
+   *     and returns the constructed {@link Topology}.
+   *
+   * @return the constructed Kafka Streams {@link Topology}.
+   */
   @Produces
   public Topology buildTopology() {
 
