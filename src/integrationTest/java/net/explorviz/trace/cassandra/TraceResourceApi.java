@@ -81,7 +81,7 @@ public class TraceResourceApi {
 
     final List<Trace> actualTraceList = Arrays.asList(body);
 
-    Assertions.assertTrue(actualTraceList.size() == 3);
+    Assertions.assertEquals(actualTraceList.size(), 3);
 
     Assertions.assertTrue(actualTraceList.contains(expected1));
     Assertions.assertTrue(actualTraceList.contains(expected2));
@@ -173,7 +173,7 @@ public class TraceResourceApi {
     final net.explorviz.trace.persistence.dao.Trace[] body =
         response.getBody().as(net.explorviz.trace.persistence.dao.Trace[].class);
 
-    Assertions.assertTrue(body.length == 0);
+    Assertions.assertEquals(body.length, 0);
   }
 
   @Test
@@ -196,8 +196,7 @@ public class TraceResourceApi {
     final net.explorviz.trace.persistence.dao.Trace[] body =
         response.getBody().as(net.explorviz.trace.persistence.dao.Trace[].class);
 
-    Assertions.assertTrue(body.length == 1);
-
+    Assertions.assertEquals(body.length, 1);
     Assertions.assertEquals(expected, body[0]);
   }
 

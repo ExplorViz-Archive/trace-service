@@ -15,7 +15,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 public class DepthReducer implements SpanReducer {
 
   @ConfigProperty(name = "explorviz.reduction.depthlimit")
-  /* default */ int depthLimit; // NOCS
+  /* default */ int depthLimit;
 
   public DepthReducer() {
     // for injection

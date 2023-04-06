@@ -14,7 +14,7 @@ import net.explorviz.trace.persistence.dao.Trace;
 public class ReactiveTraceService {
 
   @Inject
-  /* default */ Uni<ReactiveTraceDao> traceDaoReactive; // NOCS
+  /* default */ Uni<ReactiveTraceDao> traceDaoReactive;
 
   public Uni<Void> insert(final Trace trace) {
     return this.traceDaoReactive.flatMap(dao -> dao.insertAsync(trace));

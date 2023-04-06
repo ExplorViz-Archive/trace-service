@@ -21,10 +21,10 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 public class MockSerdeTraceProducer {
 
   @ConfigProperty(name = "explorviz.kafka-streams.topics.in")
-  /* default */ String inTopicStructure; // NOCS
+  /* default */ String inTopicStructure;
 
   @Inject
-  /* default */ SchemaRegistryClient registry; // NOCS
+  /* default */ SchemaRegistryClient registry;
 
   @Produces
   @IfBuildProfile("test")

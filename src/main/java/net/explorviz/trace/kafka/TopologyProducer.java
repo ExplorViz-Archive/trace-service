@@ -42,30 +42,30 @@ public class TopologyProducer {
   private static final Logger LOGGER = LoggerFactory.getLogger(TopologyProducer.class);
 
   @ConfigProperty(name = "explorviz.kafka-streams.topics.in")
-  /* default */ String inTopic; // NOCS
+  /* default */ String inTopic;
 
   @ConfigProperty(name = "explorviz.kafka-streams.window.size")
-  /* default */ long windowSizeInMs; // NOCS
+  /* default */ long windowSizeInMs;
 
   @ConfigProperty(name = "explorviz.kafka-streams.window.grace")
-  /* default */ long graceSizeInMs; // NOCS
+  /* default */ long graceSizeInMs;
 
   @ConfigProperty(name = "explorviz.kafka-streams.discard")
-  /* default */ boolean discard; // NOCS
+  /* default */ boolean discard;
 
   @Inject
-  /* default */ SpecificAvroSerde<Span> dynamicAvroSerde; // NOCS
+  /* default */ SpecificAvroSerde<Span> dynamicAvroSerde;
 
   @Inject
-  /* default */ SpecificAvroSerde<Trace> traceAvroSerde; // NOCS
+  /* default */ SpecificAvroSerde<Trace> traceAvroSerde;
 
   @Inject
-  /* default */ ReactiveTraceService reactiveTraceService; // NOCS
+  /* default */ ReactiveTraceService reactiveTraceService;
 
   @Inject
-  /* default */ DepthReducer depthReducer; // NOCS
+  /* default */ DepthReducer depthReducer;
   @Inject
-  /* default */ SimpleLoopReducer loopReducer; // NOCS
+  /* default */ SimpleLoopReducer loopReducer;
 
 
   // Logged and reset every n seconds
@@ -74,8 +74,8 @@ public class TopologyProducer {
   private final AtomicInteger spanReducedTracesCount = new AtomicInteger(0);
 
   /**
-   * Builds a Kafka Streams topology to process and aggregate spans into traces,
-   *     and returns the constructed {@link Topology}.
+   * Builds a Kafka Streams topology to process and aggregate spans into traces, and returns the
+   * constructed {@link Topology}.
    *
    * @return the constructed Kafka Streams {@link Topology}.
    */
@@ -162,10 +162,10 @@ public class TopologyProducer {
       this.reactiveTraceService.insert(TraceConverter.convertTraceToDao(t)).subscribe()
           .with(unused -> {
           }, failure -> {
-            if (LOGGER.isErrorEnabled()) { // NOCS
-              LOGGER.error("Could not persist trace", failure); // NOCS
-            } // NOCS
-          }); // NOCS
+            if (LOGGER.isErrorEnabled()) {
+              LOGGER.error("Could not persist trace", failure);
+            }
+          });
     });
 
     // END Span conversion
@@ -173,8 +173,8 @@ public class TopologyProducer {
     return builder.build();
   }
 
-  @Scheduled(every = "{explorviz.log.span.interval}") // NOPMD
-  void logStatus() { // NOPMD
+  @Scheduled(every = "{explorviz.log.span.interval}")
+    /* default */ void logStatus() {
     final int totalSpans = this.lastReceivedTotalSpans.getAndSet(0);
     final int reconstructedTraces = this.reconstructedTracesCount.getAndSet(0);
     final int spanReducedTraces = this.spanReducedTracesCount.getAndSet(0);

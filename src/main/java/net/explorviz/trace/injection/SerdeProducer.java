@@ -18,10 +18,10 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 public class SerdeProducer {
 
   @Inject
-  /* default */ SchemaRegistryClient registry; // NOCS
+  /* default */ SchemaRegistryClient registry;
 
   @ConfigProperty(name = "quarkus.kafka-streams.schema-registry-url")
-  /* default */ String schemaRegistryUrl; // NOCS
+  /* default */ String schemaRegistryUrl;
 
 
   /**

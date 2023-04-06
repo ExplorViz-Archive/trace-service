@@ -24,8 +24,8 @@ public class CallTreeNode {
   }
 
   /**
-   * Returns the level of the current node in the tree structure.
-   *     If the current node is the root node, the level is 0.
+   * Returns the level of the current node in the tree structure. If the current node is the root
+   * node, the level is 0.
    *
    * @return the level of the current node in the tree structure.
    */
@@ -44,7 +44,7 @@ public class CallTreeNode {
     return this.callees.isEmpty();
   }
 
-  /* default */ CallTreeNode getParent() { // NOPMD
+  /* default */ CallTreeNode getParent() {
     return this.parent;
   }
 

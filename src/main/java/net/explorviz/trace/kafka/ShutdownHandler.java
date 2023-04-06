@@ -24,7 +24,7 @@ public class ShutdownHandler {
   private static final Logger LOGGER = LoggerFactory.getLogger(ShutdownHandler.class);
 
   @Inject
-  /* default */ KafkaStreams streams; // NOCS
+  /* default */ KafkaStreams streams;
 
   /* default */ void onStart(final @Observes StartupEvent ev) {
     this.streams.setStateListener(new ErrorStateListener());
