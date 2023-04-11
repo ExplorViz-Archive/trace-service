@@ -21,10 +21,10 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 public class MockSerdeSpanProducer {
 
   @ConfigProperty(name = "explorviz.kafka-streams.topics.in")
-  /* default */ String inTopicSpans; 
+  /* default */ String inTopicSpans;
 
   @Inject
-  /* default */ SchemaRegistryClient registry; 
+  /* default */ SchemaRegistryClient registry;
 
   @Produces
   @IfBuildProfile("test")

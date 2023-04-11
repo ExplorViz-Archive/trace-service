@@ -142,13 +142,10 @@ public class Trace {
 
     // Compare dynamic spans with respect to their attributes
     final Trace other = (Trace) obj;
-    return this.duration == other.duration
-        && this.endTime == other.endTime
-        && Objects.equals(this.landscapeToken, other.landscapeToken)
-        && this.overallRequestCount == other.overallRequestCount
-        && Objects.equals(this.spanList, other.spanList)
-        && this.startTime == other.startTime
-        && this.traceCount == other.traceCount
+    return this.duration == other.duration && this.endTime == other.endTime && Objects.equals(
+        this.landscapeToken, other.landscapeToken)
+        && this.overallRequestCount == other.overallRequestCount && Objects.equals(this.spanList,
+        other.spanList) && this.startTime == other.startTime && this.traceCount == other.traceCount
         && Objects.equals(this.traceId, other.traceId);
   }
 

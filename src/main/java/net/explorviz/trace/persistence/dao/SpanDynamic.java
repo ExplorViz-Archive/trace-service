@@ -113,7 +113,7 @@ public class SpanDynamic {
   }
 
   @Override
-  public boolean equals(final Object obj)  {
+  public boolean equals(final Object obj) {
     // An object is always equal to itself
     if (this == obj) {
       return true;
@@ -126,13 +126,10 @@ public class SpanDynamic {
 
     // Compare dynamic spans with respect to their attributes
     final SpanDynamic other = (SpanDynamic) obj;
-    return this.startTime == other.startTime
-        && this.endTime == other.endTime
-        && Objects.equals(this.hashCode, other.hashCode)
-        && Objects.equals(this.landscapeToken, other.landscapeToken)
-        && Objects.equals(this.parentSpanId, other.parentSpanId)
-        && Objects.equals(this.spanId, other.spanId)
-        && Objects.equals(this.traceId, other.traceId);
+    return this.startTime == other.startTime && this.endTime == other.endTime && Objects.equals(
+        this.hashCode, other.hashCode) && Objects.equals(this.landscapeToken, other.landscapeToken)
+        && Objects.equals(this.parentSpanId, other.parentSpanId) && Objects.equals(this.spanId,
+        other.spanId) && Objects.equals(this.traceId, other.traceId);
   }
 
 }

@@ -48,16 +48,16 @@ class TopologyTest {
   /* default */ String inTopic;
 
   @ConfigProperty(name = "explorviz.kafka-streams.window.size")
-  /* default */ long windowSizeInMs; 
+  /* default */ long windowSizeInMs;
 
   @ConfigProperty(name = "explorviz.kafka-streams.window.grace")
-  /* default */ long graceSizeInMs; 
+  /* default */ long graceSizeInMs;
 
   @Inject
   Topology topology;
 
   @Inject
-  SpecificAvroSerde<Span> spanSerde; 
+  SpecificAvroSerde<Span> spanSerde;
 
   ReactiveTraceService reactiveTraceService;
 

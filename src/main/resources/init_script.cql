@@ -1,3 +1,4 @@
+// @formatter:off
 CREATE KEYSPACE IF NOT EXISTS explorviz WITH replication = {'class':'SimpleStrategy', 'replication_factor':1};
 
 CREATE TYPE IF NOT EXISTS explorviz.span (
