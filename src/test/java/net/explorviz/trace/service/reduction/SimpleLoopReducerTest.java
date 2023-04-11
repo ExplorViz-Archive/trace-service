@@ -15,7 +15,7 @@ class SimpleLoopReducerTest {
   @Test
   void reduceLoops() {
 
-    int[] loopLens = new int[] {1, 2, 4, 16, 32, 512 };
+    int[] loopLens = new int[] {1, 2, 4, 16, 32, 512};
     int[] iterations = new int[] {1, 2, 10, 20, 500};
 
     //int[] loopLens = new int[] {1};
@@ -29,7 +29,7 @@ class SimpleLoopReducerTest {
         // Assert correct trace generated
         SimpleLoopReducer reducer = new SimpleLoopReducer();
         CallTree reduced = reducer.reduce(tree);
-        assertEquals(len+1, reduced.size());
+        assertEquals(len + 1, reduced.size());
       }
     }
 

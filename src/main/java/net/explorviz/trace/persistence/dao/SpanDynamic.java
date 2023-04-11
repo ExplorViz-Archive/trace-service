@@ -19,15 +19,25 @@ public class SpanDynamic {
   private long startTime;
 
   private long endTime;
-  private String hashCode;// NOPMD
+  private String hashCode; // NOPMD
 
   public SpanDynamic() {
     // for serialization
   }
 
+  /**
+   * Constructs a new instance of {@code SpanDynamic} with the specified parameters.
+   *
+   * @param landscapeToken the landscape token of the span
+   * @param spanId         the ID of the span
+   * @param parentSpanId   the ID of the span's parent span
+   * @param traceId        the ID of the trace to which the span belongs
+   * @param startTime      the start time of the span in UNIX timestamp format (milliseconds)
+   * @param endTime        the end time of the span in UNIX timestamp format (milliseconds)
+   * @param hashCode       the hash code of the span
+   */
   public SpanDynamic(final String landscapeToken, final String spanId, final String parentSpanId,
-      final String traceId,
-      final long startTime, final long endTime, final String hashCode) {
+      final String traceId, final long startTime, final long endTime, final String hashCode) {
     super();
     this.landscapeToken = landscapeToken;
     this.spanId = spanId;
@@ -99,63 +109,27 @@ public class SpanDynamic {
   @Override
   public int hashCode() {
     return Objects.hash(this.endTime, this.hashCode, this.landscapeToken, this.parentSpanId,
-        this.spanId,
-        this.startTime, this.traceId);
+        this.spanId, this.startTime, this.traceId);
   }
 
-  @Override // NOCS
-  public boolean equals(final Object obj) { // NOPMD
+  @Override
+  public boolean equals(final Object obj) {
+    // An object is always equal to itself
     if (this == obj) {
       return true;
     }
-    if (obj == null || this.getClass() != obj.getClass()) {
+
+    // Ensure that objects are indeed dynamic span objects
+    if (!(obj instanceof SpanDynamic)) {
       return false;
     }
+
+    // Compare dynamic spans with respect to their attributes
     final SpanDynamic other = (SpanDynamic) obj;
-    if (this.endTime != other.endTime) {
-      return false;
-    }
-    if (this.hashCode == null) {
-      if (other.hashCode != null) {
-        return false;
-      }
-    } else if (!this.hashCode.equals(other.hashCode)) {
-      return false;
-    }
-    if (this.landscapeToken == null) {
-      if (other.landscapeToken != null) {
-        return false;
-      }
-    } else if (!this.landscapeToken.equals(other.landscapeToken)) {
-      return false;
-    }
-    if (this.parentSpanId == null) {
-      if (other.parentSpanId != null) {
-        return false;
-      }
-    } else if (!this.parentSpanId.equals(other.parentSpanId)) {
-      return false;
-    }
-    if (this.spanId == null) {
-      if (other.spanId != null) {
-        return false;
-      }
-    } else if (!this.spanId.equals(other.spanId)) {
-      return false;
-    }
-    if (this.startTime != other.startTime) {
-      return false;
-    }
-    if (this.traceId == null) {
-      if (other.traceId != null) {
-        return false;
-      }
-    } else if (!this.traceId.equals(other.traceId)) {
-      return false;
-    }
-    return true;
+    return this.startTime == other.startTime && this.endTime == other.endTime && Objects.equals(
+        this.hashCode, other.hashCode) && Objects.equals(this.landscapeToken, other.landscapeToken)
+        && Objects.equals(this.parentSpanId, other.parentSpanId) && Objects.equals(this.spanId,
+        other.spanId) && Objects.equals(this.traceId, other.traceId);
   }
-
-
 
 }

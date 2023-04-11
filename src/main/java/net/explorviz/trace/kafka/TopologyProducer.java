@@ -40,39 +40,35 @@ import org.slf4j.LoggerFactory;
 public class TopologyProducer {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TopologyProducer.class);
-
-  @ConfigProperty(name = "explorviz.kafka-streams.topics.in")
-  /* default */ String inTopic; // NOCS
-
-  @ConfigProperty(name = "explorviz.kafka-streams.window.size")
-  /* default */ long windowSizeInMs; // NOCS
-
-  @ConfigProperty(name = "explorviz.kafka-streams.window.grace")
-  /* default */ long graceSizeInMs; // NOCS
-
-  @ConfigProperty(name = "explorviz.kafka-streams.discard")
-  /* default */ boolean discard; // NOCS
-
-  @Inject
-  /* default */ SpecificAvroSerde<Span> dynamicAvroSerde; // NOCS
-
-  @Inject
-  /* default */ SpecificAvroSerde<Trace> traceAvroSerde; // NOCS
-
-  @Inject
-  /* default */ ReactiveTraceService reactiveTraceService; // NOCS
-
-  @Inject
-  /* default */ DepthReducer depthReducer; // NOCS
-  @Inject
-  /* default */ SimpleLoopReducer loopReducer; // NOCS
-
-
   // Logged and reset every n seconds
   private final AtomicInteger lastReceivedTotalSpans = new AtomicInteger(0);
   private final AtomicInteger reconstructedTracesCount = new AtomicInteger(0);
   private final AtomicInteger spanReducedTracesCount = new AtomicInteger(0);
+  @ConfigProperty(name = "explorviz.kafka-streams.topics.in")
+  /* default */ String inTopic;
+  @ConfigProperty(name = "explorviz.kafka-streams.window.size")
+  /* default */ long windowSizeInMs;
+  @ConfigProperty(name = "explorviz.kafka-streams.window.grace")
+  /* default */ long graceSizeInMs;
+  @ConfigProperty(name = "explorviz.kafka-streams.discard")
+  /* default */ boolean discard;
+  @Inject
+  /* default */ SpecificAvroSerde<Span> dynamicAvroSerde;
+  @Inject
+  /* default */ SpecificAvroSerde<Trace> traceAvroSerde;
+  @Inject
+  /* default */ ReactiveTraceService reactiveTraceService;
+  @Inject
+  /* default */ DepthReducer depthReducer;
+  @Inject
+  /* default */ SimpleLoopReducer loopReducer;
 
+  /**
+   * Builds a Kafka Streams topology to process and aggregate spans into traces, and returns the
+   * constructed {@link Topology}.
+   *
+   * @return the constructed Kafka Streams {@link Topology}.
+   */
   @Produces
   public Topology buildTopology() {
 
@@ -83,8 +79,8 @@ public class TopologyProducer {
     final KStream<String, Span> spanStream =
         builder.stream(this.inTopic, Consumed.with(Serdes.String(), this.dynamicAvroSerde));
 
-    final KStream<String, Span> spanStreamWithHashCodes = spanStream.mapValues(
-        (readOnlyKey, value) -> {
+    final KStream<String, Span> spanStreamWithHashCodes =
+        spanStream.mapValues((readOnlyKey, value) -> {
           value.setHashCode(HashHelper.createHash(value));
           return value;
         });
@@ -98,19 +94,20 @@ public class TopologyProducer {
       return builder.build();
     }
 
-    final TimeWindows traceWindow = TimeWindows.ofSizeAndGrace(
-        Duration.ofMillis(this.windowSizeInMs), Duration.ofMillis(this.graceSizeInMs));
+    final TimeWindows traceWindow =
+        TimeWindows.ofSizeAndGrace(Duration.ofMillis(this.windowSizeInMs),
+            Duration.ofMillis(this.graceSizeInMs));
 
     final TraceAggregator aggregator = new TraceAggregator();
 
     // Group by landscapeToken::TraceId
-    final KTable<Windowed<String>, Trace> traceTable = spanStreamWithHashCodes
-        .groupBy((k, v) -> v.getLandscapeToken() + "::" + v.getTraceId(),
-            Grouped.with(Serdes.String(), this.dynamicAvroSerde))
-        .windowedBy(traceWindow)
-        .aggregate(Trace::new, (key, value, aggregate) -> aggregator.aggregate(aggregate, value),
-            Materialized.with(Serdes.String(), this.traceAvroSerde))
-        .suppress(Suppressed.untilWindowCloses(Suppressed.BufferConfig.unbounded()));
+    final KTable<Windowed<String>, Trace> traceTable =
+        spanStreamWithHashCodes.groupBy((k, v) -> v.getLandscapeToken() + "::" + v.getTraceId(),
+                Grouped.with(Serdes.String(), this.dynamicAvroSerde)).windowedBy(traceWindow)
+            .aggregate(Trace::new,
+                (key, value, aggregate) -> aggregator.aggregate(aggregate, value),
+                Materialized.with(Serdes.String(), this.traceAvroSerde))
+            .suppress(Suppressed.untilWindowCloses(Suppressed.BufferConfig.unbounded()));
 
     final KStream<String, Trace> traceStream =
         traceTable.toStream().selectKey((k, v) -> v.getLandscapeToken() + "::" + k);
@@ -155,10 +152,10 @@ public class TopologyProducer {
       this.reactiveTraceService.insert(TraceConverter.convertTraceToDao(t)).subscribe()
           .with(unused -> {
           }, failure -> {
-            if (LOGGER.isErrorEnabled()) { // NOCS
-              LOGGER.error("Could not persist trace", failure); // NOCS
-            } // NOCS
-          }); // NOCS
+            if (LOGGER.isErrorEnabled()) {
+              LOGGER.error("Could not persist trace", failure);
+            }
+          });
     });
 
     // END Span conversion
@@ -166,8 +163,8 @@ public class TopologyProducer {
     return builder.build();
   }
 
-  @Scheduled(every = "{explorviz.log.span.interval}") // NOPMD
-  void logStatus() { // NOPMD
+  @Scheduled(every = "{explorviz.log.span.interval}")
+    /* default */ void logStatus() {
     final int totalSpans = this.lastReceivedTotalSpans.getAndSet(0);
     final int reconstructedTraces = this.reconstructedTracesCount.getAndSet(0);
     final int spanReducedTraces = this.spanReducedTracesCount.getAndSet(0);
@@ -175,10 +172,9 @@ public class TopologyProducer {
       if (this.discard) {
         LOGGER.debug("Received and discarded {} spans.", totalSpans);
       } else {
-        LOGGER.debug(
-            "Received {} spans: {} trace reconstructed in"
-                + " {} time window, the Spans of {} traces have been reduced.",
-            totalSpans, reconstructedTraces, this.windowSizeInMs, spanReducedTraces);
+        LOGGER.debug("Received {} spans: {} trace reconstructed in"
+                + " {} time window, the Spans of {} traces have been reduced.", totalSpans,
+            reconstructedTraces, this.windowSizeInMs, spanReducedTraces);
       }
     }
   }

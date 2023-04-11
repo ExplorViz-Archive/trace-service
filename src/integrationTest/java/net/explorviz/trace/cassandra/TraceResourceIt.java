@@ -53,25 +53,20 @@ public class TraceResourceIt {
     this.reactiveTraceService.insert(expected4).await().indefinitely();
     this.reactiveTraceService.insert(expected5).await().indefinitely();
 
-    final Trace actual1 = this.reactiveTraceService
-        .getByTraceId(expected1.getLandscapeToken(), expected1.getTraceId()).collect().first()
-        .await().indefinitely();
+    final Trace actual1 = this.reactiveTraceService.getByTraceId(expected1.getLandscapeToken(),
+        expected1.getTraceId()).collect().first().await().indefinitely();
 
-    final Trace actual2 = this.reactiveTraceService
-        .getByTraceId(expected2.getLandscapeToken(), expected2.getTraceId()).collect().first()
-        .await().indefinitely();
+    final Trace actual2 = this.reactiveTraceService.getByTraceId(expected2.getLandscapeToken(),
+        expected2.getTraceId()).collect().first().await().indefinitely();
 
-    final Trace actual3 = this.reactiveTraceService
-        .getByTraceId(expected3.getLandscapeToken(), expected3.getTraceId()).collect().first()
-        .await().indefinitely();
+    final Trace actual3 = this.reactiveTraceService.getByTraceId(expected3.getLandscapeToken(),
+        expected3.getTraceId()).collect().first().await().indefinitely();
 
-    final Trace actual4 = this.reactiveTraceService
-        .getByTraceId(expected4.getLandscapeToken(), expected4.getTraceId()).collect().first()
-        .await().indefinitely();
+    final Trace actual4 = this.reactiveTraceService.getByTraceId(expected4.getLandscapeToken(),
+        expected4.getTraceId()).collect().first().await().indefinitely();
 
-    final Trace actual5 = this.reactiveTraceService
-        .getByTraceId(expected5.getLandscapeToken(), expected5.getTraceId()).collect().first()
-        .await().indefinitely();
+    final Trace actual5 = this.reactiveTraceService.getByTraceId(expected5.getLandscapeToken(),
+        expected5.getTraceId()).collect().first().await().indefinitely();
 
     Assertions.assertEquals(expected1, actual1);
     Assertions.assertEquals(expected2, actual2);
@@ -109,10 +104,11 @@ public class TraceResourceIt {
     this.reactiveTraceService.insert(expected4).await().indefinitely();
     this.reactiveTraceService.insert(expected5).await().indefinitely();
 
-    final List<Trace> actualTraceList = this.reactiveTraceService.getAllAsync(landscapeToken)
-        .collect().asList().await().indefinitely();
+    final List<Trace> actualTraceList =
+        this.reactiveTraceService.getAllAsync(landscapeToken).collect().asList().await()
+            .indefinitely();
 
-    Assertions.assertTrue(expectedList.size() == actualTraceList.size());
+    Assertions.assertEquals(expectedList.size(), actualTraceList.size());
 
     Assertions.assertTrue(actualTraceList.contains(expected1));
     Assertions.assertTrue(actualTraceList.contains(expected2));
@@ -132,16 +128,16 @@ public class TraceResourceIt {
     final long fromSeconds2 = 1605700811000L;
     final long toSeconds2 = 1605700821000L;
 
-    final Trace expected1 = TraceConverter
-        .convertTraceToDao(TraceHelper.randomTrace(5, landscapeToken, fromSeconds1, toSeconds1));
-    final Trace expected2 = TraceConverter
-        .convertTraceToDao(TraceHelper.randomTrace(5, landscapeToken, fromSeconds1, toSeconds1));
-    final Trace expected3 = TraceConverter
-        .convertTraceToDao(TraceHelper.randomTrace(5, landscapeToken, fromSeconds1, toSeconds1));
-    final Trace remainder4 = TraceConverter
-        .convertTraceToDao(TraceHelper.randomTrace(5, landscapeToken, fromSeconds2, toSeconds2));
-    final Trace remainder5 = TraceConverter
-        .convertTraceToDao(TraceHelper.randomTrace(5, landscapeToken, fromSeconds2, toSeconds2));
+    final Trace expected1 = TraceConverter.convertTraceToDao(
+        TraceHelper.randomTrace(5, landscapeToken, fromSeconds1, toSeconds1));
+    final Trace expected2 = TraceConverter.convertTraceToDao(
+        TraceHelper.randomTrace(5, landscapeToken, fromSeconds1, toSeconds1));
+    final Trace expected3 = TraceConverter.convertTraceToDao(
+        TraceHelper.randomTrace(5, landscapeToken, fromSeconds1, toSeconds1));
+    final Trace remainder4 = TraceConverter.convertTraceToDao(
+        TraceHelper.randomTrace(5, landscapeToken, fromSeconds2, toSeconds2));
+    final Trace remainder5 = TraceConverter.convertTraceToDao(
+        TraceHelper.randomTrace(5, landscapeToken, fromSeconds2, toSeconds2));
 
     long filteringKey = Math.min(expected1.getStartTime(), expected2.getStartTime());
 
@@ -158,9 +154,9 @@ public class TraceResourceIt {
     this.reactiveTraceService.insert(remainder4).await().indefinitely();
     this.reactiveTraceService.insert(remainder5).await().indefinitely();
 
-    final List<Trace> actualTraceList = this.reactiveTraceService
-        .getByStartTimeAndEndTime(landscapeToken, filteringKey, filteringKey + 1000).collect()
-        .asList().await().indefinitely();
+    final List<Trace> actualTraceList =
+        this.reactiveTraceService.getByStartTimeAndEndTime(landscapeToken, filteringKey,
+            filteringKey + 1000).collect().asList().await().indefinitely();
 
     Assertions.assertEquals(expectedList.size(), actualTraceList.size());
 
@@ -177,12 +173,12 @@ public class TraceResourceIt {
     final long fromSeconds1 = 1605700800000L;
     final long toSeconds1 = 1605700810000L;
 
-    final Trace expected1 = TraceConverter
-        .convertTraceToDao(TraceHelper.randomTrace(5, landscapeToken, fromSeconds1, toSeconds1));
-    final Trace expected2 = TraceConverter
-        .convertTraceToDao(TraceHelper.randomTrace(5, landscapeToken, fromSeconds1, toSeconds1));
-    final Trace expected3 = TraceConverter
-        .convertTraceToDao(TraceHelper.randomTrace(5, landscapeToken, fromSeconds1, toSeconds1));
+    final Trace expected1 = TraceConverter.convertTraceToDao(
+        TraceHelper.randomTrace(5, landscapeToken, fromSeconds1, toSeconds1));
+    final Trace expected2 = TraceConverter.convertTraceToDao(
+        TraceHelper.randomTrace(5, landscapeToken, fromSeconds1, toSeconds1));
+    final Trace expected3 = TraceConverter.convertTraceToDao(
+        TraceHelper.randomTrace(5, landscapeToken, fromSeconds1, toSeconds1));
 
     final List<Trace> expectedList = new ArrayList<>();
     expectedList.add(expected1);
@@ -194,10 +190,12 @@ public class TraceResourceIt {
     this.reactiveTraceService.insert(expected3).await().indefinitely();
 
     final String newLandscapeToken = RandomStringUtils.random(32, true, true);
-    final var newToken = this.reactiveTraceService.getAllAsync(newLandscapeToken).collect().asList()
-        .await().indefinitely();
-    final var clonedToken = this.reactiveTraceService.getAllAsync(landscapeToken).collect().asList()
-        .await().indefinitely();
+    final var newToken =
+        this.reactiveTraceService.getAllAsync(newLandscapeToken).collect().asList().await()
+            .indefinitely();
+    final var clonedToken =
+        this.reactiveTraceService.getAllAsync(landscapeToken).collect().asList().await()
+            .indefinitely();
 
     Assertions.assertEquals(0, newToken.size());
     Assertions.assertEquals(3, clonedToken.size());
@@ -205,8 +203,9 @@ public class TraceResourceIt {
     this.reactiveTraceService.cloneAllAsync(newLandscapeToken, landscapeToken).collect().asList()
         .await().indefinitely();
 
-    final var result = this.reactiveTraceService.getAllAsync(newLandscapeToken).collect().asList()
-        .await().indefinitely();
+    final var result =
+        this.reactiveTraceService.getAllAsync(newLandscapeToken).collect().asList().await()
+            .indefinitely();
 
     Assertions.assertEquals(3, result.size());
   }

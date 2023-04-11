@@ -29,20 +29,15 @@ public final class TraceHelper {
     final long maxSeconds = 1609459200;
     final long minSeconds = 1577836800;
 
-    return Span.newBuilder()
-        .setLandscapeToken(token)
-        .setSpanId(RandomStringUtils.random(8, true, true))
-        .setParentSpanId(parentSpanId)
-        .setTraceId(traceId)
-        .setStartTimeEpochMilli(RandomUtils.nextLong(minSeconds, maxSeconds))
+    return Span.newBuilder().setLandscapeToken(token)
+        .setSpanId(RandomStringUtils.random(8, true, true)).setParentSpanId(parentSpanId)
+        .setTraceId(traceId).setStartTimeEpochMilli(RandomUtils.nextLong(minSeconds, maxSeconds))
         .setEndTimeEpochMilli(RandomUtils.nextLong(minSeconds, maxSeconds))
         .setFullyQualifiedOperationName(randomFqn())
-        .setHostname(RandomStringUtils.randomAlphabetic(10))
-        .setHostIpAddress(randomIp())
+        .setHostname(RandomStringUtils.randomAlphabetic(10)).setHostIpAddress(randomIp())
         .setAppName(RandomStringUtils.randomAlphabetic(10))
         .setAppInstanceId(RandomStringUtils.randomNumeric(3))
-        .setAppLanguage(RandomStringUtils.randomAlphabetic(5))
-        .build();
+        .setAppLanguage(RandomStringUtils.randomAlphabetic(5)).build();
   }
 
   /**
@@ -61,39 +56,30 @@ public final class TraceHelper {
     final long maxSeconds = 1609459200;
     final long minSeconds = 1577836800;
 
-    return Span.newBuilder()
-        .setLandscapeToken(token)
+    return Span.newBuilder().setLandscapeToken(token)
         .setSpanId(RandomStringUtils.random(8, true, true))
-        .setParentSpanId(RandomStringUtils.random(8, true, true))
-        .setTraceId(traceId)
+        .setParentSpanId(RandomStringUtils.random(8, true, true)).setTraceId(traceId)
         .setStartTimeEpochMilli(RandomUtils.nextLong(minSeconds, maxSeconds))
         .setEndTimeEpochMilli(RandomUtils.nextLong(minSeconds, maxSeconds))
         .setFullyQualifiedOperationName(randomFqn())
-        .setHostname(RandomStringUtils.randomAlphabetic(10))
-        .setHostIpAddress(randomIp())
+        .setHostname(RandomStringUtils.randomAlphabetic(10)).setHostIpAddress(randomIp())
         .setAppName(RandomStringUtils.randomAlphabetic(10))
         .setAppInstanceId(RandomStringUtils.randomNumeric(3))
-        .setAppLanguage(RandomStringUtils.randomAlphabetic(5))
-        .build();
+        .setAppLanguage(RandomStringUtils.randomAlphabetic(5)).build();
   }
 
   public static Span randomSpanFixedTimeInterval(final String traceId, final String token,
       final long fromEpochMilli, final long toEpochMilli) {
 
-    return Span.newBuilder()
-        .setLandscapeToken(token)
+    return Span.newBuilder().setLandscapeToken(token)
         .setSpanId(RandomStringUtils.random(8, true, true))
-        .setParentSpanId(RandomStringUtils.random(8, true, true))
-        .setTraceId(traceId)
-        .setStartTimeEpochMilli(fromEpochMilli)
-        .setEndTimeEpochMilli(toEpochMilli)
+        .setParentSpanId(RandomStringUtils.random(8, true, true)).setTraceId(traceId)
+        .setStartTimeEpochMilli(fromEpochMilli).setEndTimeEpochMilli(toEpochMilli)
         .setFullyQualifiedOperationName(randomFqn())
-        .setHostname(RandomStringUtils.randomAlphabetic(10))
-        .setHostIpAddress(randomIp())
+        .setHostname(RandomStringUtils.randomAlphabetic(10)).setHostIpAddress(randomIp())
         .setAppName(RandomStringUtils.randomAlphabetic(10))
         .setAppInstanceId(RandomStringUtils.randomNumeric(3))
-        .setAppLanguage(RandomStringUtils.randomAlphabetic(5))
-        .build();
+        .setAppLanguage(RandomStringUtils.randomAlphabetic(5)).build();
   }
 
   /**
@@ -134,8 +120,8 @@ public final class TraceHelper {
       if (root == null) {
         psid = "";
       } else {
-        psid = spans.stream().map(Span::getSpanId)
-            .skip(RandomUtils.nextInt(0, spans.size() - 1)).findAny().get();
+        psid = spans.stream().map(Span::getSpanId).skip(RandomUtils.nextInt(0, spans.size() - 1))
+            .findAny().get();
       }
       final Span s = randomSpan(traceId, landscapeToken, psid);
       if (root == null) {

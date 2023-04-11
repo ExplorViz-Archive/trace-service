@@ -23,6 +23,12 @@ public class CallTreeNode {
     this.callees = new HashSet<>();
   }
 
+  /**
+   * Returns the level of the current node in the tree structure. If the current node is the root
+   * node, the level is 0.
+   *
+   * @return the level of the current node in the tree structure.
+   */
   public int getLevel() {
     if (this.parent == null) {
       return 0;
@@ -38,7 +44,7 @@ public class CallTreeNode {
     return this.callees.isEmpty();
   }
 
-  /* default */ CallTreeNode getParent() { // NOPMD
+  /* default */ CallTreeNode getParent() {
     return this.parent;
   }
 
@@ -48,11 +54,9 @@ public class CallTreeNode {
 
   @Override
   public String toString() {
-    return new ToStringBuilder(this, ToStringStyle.JSON_STYLE)
-        .append("spanId", this.spanDynamic.getSpanId())
-        .append("hashCode", this.hashCode())
-        .append("callees", this.callees)
-        .toString();
+    return new ToStringBuilder(this, ToStringStyle.JSON_STYLE).append("spanId",
+            this.spanDynamic.getSpanId()).append("hashCode", this.hashCode())
+        .append("callees", this.callees).toString();
   }
 
   public void addChild(final CallTreeNode child) {

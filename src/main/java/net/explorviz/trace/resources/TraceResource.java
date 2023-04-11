@@ -35,6 +35,16 @@ public class TraceResource {
     return this.reactiveTraceService.getByTraceId(landscapeToken, traceId);
   }
 
+  /**
+   * Retrieves traces within a given time frame and landscape token.
+   *
+   * @param landscapeToken the token representing the landscape from which to retrieve traces
+   * @param fromMs         the start time of the time frame in UNIX timestamp in milliseconds
+   *                       (optional)
+   * @param toMs           the end time of the time frame in UNIX timestamp in milliseconds
+   *                       (optional)
+   * @return a Multi data stream of Trace objects that match the criteria
+   */
   @GET
   @Path("{token}/dynamic")
   @Produces(MediaType.APPLICATION_JSON)
@@ -52,7 +62,7 @@ public class TraceResource {
       case 2: // to is given
         to = toMs;
         break;
-      case 3: // both given // NOCS
+      case 3: // both given 
         from = fromMs;
         to = toMs;
         break;

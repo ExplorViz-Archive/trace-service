@@ -1,6 +1,7 @@
 package net.explorviz.trace.cassandra;
 
 import static io.restassured.RestAssured.given;
+
 import com.datastax.oss.quarkus.test.CassandraTestResource;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
@@ -39,8 +40,9 @@ public class TraceResourceApi {
 
     this.reactiveTraceService.insert(expected).await().indefinitely();
 
-    final Response response = given().pathParam("landscapeToken", expected.getLandscapeToken())
-        .when().get("/v2/landscapes/{landscapeToken}/dynamic");
+    final Response response =
+        given().pathParam("landscapeToken", expected.getLandscapeToken()).when()
+            .get("/v2/landscapes/{landscapeToken}/dynamic");
 
     final net.explorviz.trace.persistence.dao.Trace[] body =
         response.getBody().as(net.explorviz.trace.persistence.dao.Trace[].class);
@@ -79,7 +81,7 @@ public class TraceResourceApi {
 
     final List<Trace> actualTraceList = Arrays.asList(body);
 
-    Assertions.assertTrue(actualTraceList.size() == 3);
+    Assertions.assertEquals(actualTraceList.size(), 3);
 
     Assertions.assertTrue(actualTraceList.contains(expected1));
     Assertions.assertTrue(actualTraceList.contains(expected2));
@@ -98,16 +100,16 @@ public class TraceResourceApi {
     final long fromEpoch2 = 1605700811000L;
     final long toEpoch2 = 1605700821000L;
 
-    final Trace expected1 = TraceConverter
-        .convertTraceToDao(TraceHelper.randomTrace(5, landscapeToken1, fromEpoch1, toEpoch1));
-    final Trace expected2 = TraceConverter
-        .convertTraceToDao(TraceHelper.randomTrace(5, landscapeToken1, toEpoch1, fromEpoch2));
-    final Trace remainder3 = TraceConverter
-        .convertTraceToDao(TraceHelper.randomTrace(5, landscapeToken1, fromEpoch2, toEpoch2));
-    final Trace remainder4 = TraceConverter
-        .convertTraceToDao(TraceHelper.randomTrace(5, landscapeToken2, fromEpoch1, toEpoch1));
-    final Trace remainder5 = TraceConverter
-        .convertTraceToDao(TraceHelper.randomTrace(5, landscapeToken2, fromEpoch2, toEpoch2));
+    final Trace expected1 = TraceConverter.convertTraceToDao(
+        TraceHelper.randomTrace(5, landscapeToken1, fromEpoch1, toEpoch1));
+    final Trace expected2 = TraceConverter.convertTraceToDao(
+        TraceHelper.randomTrace(5, landscapeToken1, toEpoch1, fromEpoch2));
+    final Trace remainder3 = TraceConverter.convertTraceToDao(
+        TraceHelper.randomTrace(5, landscapeToken1, fromEpoch2, toEpoch2));
+    final Trace remainder4 = TraceConverter.convertTraceToDao(
+        TraceHelper.randomTrace(5, landscapeToken2, fromEpoch1, toEpoch1));
+    final Trace remainder5 = TraceConverter.convertTraceToDao(
+        TraceHelper.randomTrace(5, landscapeToken2, fromEpoch2, toEpoch2));
 
     final long from = expected1.getStartTime();
     final long to = expected2.getStartTime();
@@ -127,7 +129,7 @@ public class TraceResourceApi {
 
     final List<Trace> actualTraceList = Arrays.asList(body);
 
-    Assertions.assertTrue(actualTraceList.size() == 2);
+    Assertions.assertEquals(2, actualTraceList.size());
 
     Assertions.assertTrue(actualTraceList.contains(expected1));
     Assertions.assertTrue(actualTraceList.contains(expected2));
@@ -147,16 +149,16 @@ public class TraceResourceApi {
 
     final long outOfRangeFromMilli2 = 1605700822000L;
 
-    final Trace remainder1 = TraceConverter
-        .convertTraceToDao(TraceHelper.randomTrace(5, landscapeToken1, fromEpoch1, toEpoch1));
-    final Trace remainder2 = TraceConverter
-        .convertTraceToDao(TraceHelper.randomTrace(5, landscapeToken1, toEpoch1, fromEpoch2));
-    final Trace remainder3 = TraceConverter
-        .convertTraceToDao(TraceHelper.randomTrace(5, landscapeToken1, fromEpoch2, toEpoch2));
-    final Trace remainder4 = TraceConverter
-        .convertTraceToDao(TraceHelper.randomTrace(5, landscapeToken2, fromEpoch1, toEpoch1));
-    final Trace remainder5 = TraceConverter
-        .convertTraceToDao(TraceHelper.randomTrace(5, landscapeToken2, fromEpoch2, toEpoch2));
+    final Trace remainder1 = TraceConverter.convertTraceToDao(
+        TraceHelper.randomTrace(5, landscapeToken1, fromEpoch1, toEpoch1));
+    final Trace remainder2 = TraceConverter.convertTraceToDao(
+        TraceHelper.randomTrace(5, landscapeToken1, toEpoch1, fromEpoch2));
+    final Trace remainder3 = TraceConverter.convertTraceToDao(
+        TraceHelper.randomTrace(5, landscapeToken1, fromEpoch2, toEpoch2));
+    final Trace remainder4 = TraceConverter.convertTraceToDao(
+        TraceHelper.randomTrace(5, landscapeToken2, fromEpoch1, toEpoch1));
+    final Trace remainder5 = TraceConverter.convertTraceToDao(
+        TraceHelper.randomTrace(5, landscapeToken2, fromEpoch2, toEpoch2));
 
     this.reactiveTraceService.insert(remainder1).await().indefinitely();
     this.reactiveTraceService.insert(remainder2).await().indefinitely();
@@ -171,7 +173,7 @@ public class TraceResourceApi {
     final net.explorviz.trace.persistence.dao.Trace[] body =
         response.getBody().as(net.explorviz.trace.persistence.dao.Trace[].class);
 
-    Assertions.assertTrue(body.length == 0);
+    Assertions.assertEquals(body.length, 0);
   }
 
   @Test
@@ -194,8 +196,7 @@ public class TraceResourceApi {
     final net.explorviz.trace.persistence.dao.Trace[] body =
         response.getBody().as(net.explorviz.trace.persistence.dao.Trace[].class);
 
-    Assertions.assertTrue(body.length == 1);
-
+    Assertions.assertEquals(body.length, 1);
     Assertions.assertEquals(expected, body[0]);
   }
 

@@ -15,6 +15,12 @@ public final class TraceConverter {
     // Utility class
   }
 
+  /**
+   * Converts an Avro Trace object to a DAO Trace object.
+   *
+   * @param t the Avro Trace object to convert
+   * @return the corresponding DAO Trace object
+   */
   public static Trace convertTraceToDao(final net.explorviz.avro.Trace t) {
     // Build Dao SpanList
 
@@ -26,9 +32,8 @@ public final class TraceConverter {
       final long endTime = span.getEndTimeEpochMilli();
 
       final SpanDynamic spanDynamicEntity =
-          new SpanDynamic(span.getLandscapeToken(),
-              span.getSpanId(), span.getParentSpanId(), span.getTraceId(), startTime, endTime,
-              HashHelper.createHash(span));
+          new SpanDynamic(span.getLandscapeToken(), span.getSpanId(), span.getParentSpanId(),
+              span.getTraceId(), startTime, endTime, HashHelper.createHash(span));
 
       daoSpanList.add(spanDynamicEntity);
     }

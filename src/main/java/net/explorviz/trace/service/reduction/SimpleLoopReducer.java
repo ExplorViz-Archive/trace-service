@@ -72,16 +72,14 @@ public class SimpleLoopReducer implements SpanReducer {
       }
     }
 
-
     return new CallTree(newRoot);
-
   }
 
-  private Map<Integer, List<CallTreeNode>> findReducibleNodesPerLevel(// NOPMD
+  private Map<Integer, List<CallTreeNode>> findReducibleNodesPerLevel(//NOPMD
       final Map<Integer, List<CallTreeNode>> leavesPerLevel) {
 
     final Map<Integer, List<CallTreeNode>> reducibleNodes = new HashMap<>();
-    // For all leaves u,v on the same level, check if path to LCA(u,v) contains the same hashcodes.
+    // For all leaves u,v on the same level, check if path to LCA(u,v) contains the same hash codes.
     // If so, they can be reduced.
     for (final int level : leavesPerLevel.keySet()) {
       // Contains the leaves that can be removed on this level
@@ -101,7 +99,7 @@ public class SimpleLoopReducer implements SpanReducer {
           final List<CallTreeNode> uToLca = pathsToLca.get(0);
           final List<CallTreeNode> vToLca = pathsToLca.get(1);
 
-          // Check if both paths are equal w.r.t. the hashcodes of referenced methods
+          // Check if both paths are equal w.r.t. the hash codes of referenced methods
           boolean isEqualPath = true;
           for (int k = 0; k < uToLca.size() && isEqualPath; k++) {
             isEqualPath = vToLca.get(k).getSpanDynamic().getHashCode()

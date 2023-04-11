@@ -33,7 +33,7 @@ public class TokenEventConsumer {
    * Processes token-events in a background, called by reactive messaging framework. If a token was
    * deleted, all corresponding entries are removed from the database.
    *
-   * @param event the token-event
+   * @param record The token event
    */
   @Incoming("token-events")
   public void process(final Record<String, TokenEvent> record) {

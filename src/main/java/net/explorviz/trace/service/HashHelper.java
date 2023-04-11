@@ -62,10 +62,10 @@ public final class HashHelper {
   }
 
   private static String bytesToHex(final byte[] hash) {
-    final StringBuffer hexString = new StringBuffer();
+    final StringBuilder hexString = new StringBuilder();
     for (final byte element : hash) {
       final String hex = Integer.toHexString(EIGHT_BIT_CAP & element);
-      if (hex.length() == 1) { // NOPMD
+      if (hex.length() == 1) {
         hexString.append('0');
       }
       hexString.append(hex);

@@ -33,6 +33,18 @@ public class Trace {
     // for serialization
   }
 
+  /**
+   * Creates a Trace object that represents a trace of spans in a distributed system.
+   *
+   * @param landscapeToken      the token of the landscape where the trace occurred
+   * @param traceId             the ID of the trace
+   * @param startTime           the start time of the trace (in milliseconds since the Unix epoch)
+   * @param endTime             the end time of the trace (in milliseconds since the Unix epoch)
+   * @param duration            the duration of the trace (in milliseconds)
+   * @param overallRequestCount the overall number of requests that occurred during the trace
+   * @param traceCount          Number of traces that this Trace object represents
+   * @param spanList            the list of spans in the trace
+   */
   public Trace(final String landscapeToken, final String traceId, final long startTime,
       final long endTime, final long duration, final int overallRequestCount, final int traceCount,
       final List<SpanDynamic> spanList) {
@@ -117,51 +129,25 @@ public class Trace {
         this.spanList, this.startTime, this.traceCount, this.traceId);
   }
 
-  @Override // NOCS
-  public boolean equals(final Object obj) { // NOPMD
+  @Override
+  public boolean equals(final Object obj) {
+    // An object is always equal to itself
     if (this == obj) {
       return true;
     }
-    if (obj == null || this.getClass() != obj.getClass()) {
+    // Ensure that objects are indeed trace objects
+    if (!(obj instanceof Trace)) {
       return false;
     }
-    final Trace other = (Trace) obj;
-    if (this.duration != other.duration || this.endTime != other.endTime) {
-      return false;
-    }
-    if (this.landscapeToken == null) {
-      if (other.landscapeToken != null) {
-        return false;
-      }
-    } else if (!this.landscapeToken.equals(other.landscapeToken)) {
-      return false;
-    }
-    if (this.overallRequestCount != other.overallRequestCount) {
-      return false;
-    }
-    if (this.spanList == null) {
-      if (other.spanList != null) {
-        return false;
-      }
-    } else if (!this.spanList.equals(other.spanList)) {
-      return false;
-    }
-    if (this.startTime != other.startTime) {
-      return false;
-    }
-    if (this.traceCount != other.traceCount) {
-      return false;
-    }
-    if (this.traceId == null) {
-      if (other.traceId != null) {
-        return false;
-      }
-    } else if (!this.traceId.equals(other.traceId)) {
-      return false;
-    }
-    return true;
-  }
 
+    // Compare dynamic spans with respect to their attributes
+    final Trace other = (Trace) obj;
+    return this.duration == other.duration && this.endTime == other.endTime && Objects.equals(
+        this.landscapeToken, other.landscapeToken)
+        && this.overallRequestCount == other.overallRequestCount && Objects.equals(this.spanList,
+        other.spanList) && this.startTime == other.startTime && this.traceCount == other.traceCount
+        && Objects.equals(this.traceId, other.traceId);
+  }
 
 
 }

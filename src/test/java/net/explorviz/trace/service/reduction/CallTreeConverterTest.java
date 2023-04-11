@@ -1,6 +1,6 @@
 package net.explorviz.trace.service.reduction;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,8 +14,8 @@ class CallTreeConverterTest {
 
   @Test
   void testSizeAfterSimpleConversion() {
-    int[] sizes = new int[]{1, 2, 10, 100, 1000, 10000};
-    for (int size: sizes) {
+    int[] sizes = new int[] {1, 2, 10, 100, 1000, 10000};
+    for (int size : sizes) {
       Trace t = TraceHelper.randomTrace(size);
       CallTree tree = CallTreeConverter.toTree(t);
       assertEquals(size, tree.size());
@@ -25,7 +25,7 @@ class CallTreeConverterTest {
   @Test
   void testSizeAfterUniformLoopConversion() {
 
-    int[] loopLens = new int[] {1, 2, 4, 16, 32, 512 };
+    int[] loopLens = new int[] {1, 2, 4, 16, 32, 512};
     int[] iterations = new int[] {1, 2, 10, 20, 500};
 
     for (int it : iterations) {
@@ -43,7 +43,7 @@ class CallTreeConverterTest {
   @Test
   void testDepthAfterUniformLoopConversion() {
 
-    int[] loopLens = new int[] {1, 2, 4, 16, 32, 512 };
+    int[] loopLens = new int[] {1, 2, 4, 16, 32, 512};
     int[] iterations = new int[] {1, 2, 10, 20, 500};
 
     for (int it : iterations) {
@@ -52,8 +52,8 @@ class CallTreeConverterTest {
 
         // find different hashcodes
         List<String> differentHashcodes = new ArrayList<>();
-        for(Span s : trace.getSpanList()) {
-          if(!differentHashcodes.contains(s.getHashCode())) {
+        for (Span s : trace.getSpanList()) {
+          if (!differentHashcodes.contains(s.getHashCode())) {
             differentHashcodes.add(s.getHashCode());
           }
         }
@@ -68,8 +68,8 @@ class CallTreeConverterTest {
 
   @Test
   void testConversion() {
-    int[] sizes = new int[]{1, 2, 10, 100, 1000, 10000};
-    for (int size: sizes) {
+    int[] sizes = new int[] {1, 2, 10, 100, 1000, 10000};
+    for (int size : sizes) {
       Trace t = TraceHelper.randomTrace(size);
       CallTree tree = CallTreeConverter.toTree(t);
       Trace got = CallTreeConverter.toTrace(tree);

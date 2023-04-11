@@ -88,9 +88,7 @@ public class CallTree {
 
   @Override
   public String toString() {
-    return new ToStringBuilder(this, ToStringStyle.JSON_STYLE)
-        .append("root", this.root)
-        .toString();
+    return new ToStringBuilder(this, ToStringStyle.JSON_STYLE).append("root", this.root).toString();
   }
 
 
