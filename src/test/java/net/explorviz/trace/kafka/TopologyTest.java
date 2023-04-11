@@ -39,27 +39,19 @@ import org.slf4j.LoggerFactory;
 class TopologyTest {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TopologyTest.class);
-
-  private TopologyTestDriver testDriver;
-
-  private TestInputTopic<String, Span> inputTopic;
-
   @ConfigProperty(name = "explorviz.kafka-streams.topics.in")
   /* default */ String inTopic;
-
   @ConfigProperty(name = "explorviz.kafka-streams.window.size")
   /* default */ long windowSizeInMs;
-
   @ConfigProperty(name = "explorviz.kafka-streams.window.grace")
   /* default */ long graceSizeInMs;
-
   @Inject
   Topology topology;
-
   @Inject
   SpecificAvroSerde<Span> spanSerde;
-
   ReactiveTraceService reactiveTraceService;
+  private TopologyTestDriver testDriver;
+  private TestInputTopic<String, Span> inputTopic;
 
   @BeforeEach
   void setUp() {

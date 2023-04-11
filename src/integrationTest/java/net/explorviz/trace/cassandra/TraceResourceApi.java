@@ -129,7 +129,7 @@ public class TraceResourceApi {
 
     final List<Trace> actualTraceList = Arrays.asList(body);
 
-    Assertions.assertTrue(actualTraceList.size() == 2);
+    Assertions.assertEquals(2, actualTraceList.size());
 
     Assertions.assertTrue(actualTraceList.contains(expected1));
     Assertions.assertTrue(actualTraceList.contains(expected2));

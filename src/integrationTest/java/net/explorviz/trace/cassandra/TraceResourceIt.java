@@ -108,7 +108,7 @@ public class TraceResourceIt {
         this.reactiveTraceService.getAllAsync(landscapeToken).collect().asList().await()
             .indefinitely();
 
-    Assertions.assertTrue(expectedList.size() == actualTraceList.size());
+    Assertions.assertEquals(expectedList.size(), actualTraceList.size());
 
     Assertions.assertTrue(actualTraceList.contains(expected1));
     Assertions.assertTrue(actualTraceList.contains(expected2));

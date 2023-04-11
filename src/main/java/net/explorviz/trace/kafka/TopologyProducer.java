@@ -40,38 +40,28 @@ import org.slf4j.LoggerFactory;
 public class TopologyProducer {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TopologyProducer.class);
-
-  @ConfigProperty(name = "explorviz.kafka-streams.topics.in")
-  /* default */ String inTopic;
-
-  @ConfigProperty(name = "explorviz.kafka-streams.window.size")
-  /* default */ long windowSizeInMs;
-
-  @ConfigProperty(name = "explorviz.kafka-streams.window.grace")
-  /* default */ long graceSizeInMs;
-
-  @ConfigProperty(name = "explorviz.kafka-streams.discard")
-  /* default */ boolean discard;
-
-  @Inject
-  /* default */ SpecificAvroSerde<Span> dynamicAvroSerde;
-
-  @Inject
-  /* default */ SpecificAvroSerde<Trace> traceAvroSerde;
-
-  @Inject
-  /* default */ ReactiveTraceService reactiveTraceService;
-
-  @Inject
-  /* default */ DepthReducer depthReducer;
-  @Inject
-  /* default */ SimpleLoopReducer loopReducer;
-
-
   // Logged and reset every n seconds
   private final AtomicInteger lastReceivedTotalSpans = new AtomicInteger(0);
   private final AtomicInteger reconstructedTracesCount = new AtomicInteger(0);
   private final AtomicInteger spanReducedTracesCount = new AtomicInteger(0);
+  @ConfigProperty(name = "explorviz.kafka-streams.topics.in")
+  /* default */ String inTopic;
+  @ConfigProperty(name = "explorviz.kafka-streams.window.size")
+  /* default */ long windowSizeInMs;
+  @ConfigProperty(name = "explorviz.kafka-streams.window.grace")
+  /* default */ long graceSizeInMs;
+  @ConfigProperty(name = "explorviz.kafka-streams.discard")
+  /* default */ boolean discard;
+  @Inject
+  /* default */ SpecificAvroSerde<Span> dynamicAvroSerde;
+  @Inject
+  /* default */ SpecificAvroSerde<Trace> traceAvroSerde;
+  @Inject
+  /* default */ ReactiveTraceService reactiveTraceService;
+  @Inject
+  /* default */ DepthReducer depthReducer;
+  @Inject
+  /* default */ SimpleLoopReducer loopReducer;
 
   /**
    * Builds a Kafka Streams topology to process and aggregate spans into traces, and returns the
